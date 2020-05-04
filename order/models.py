@@ -18,6 +18,13 @@ DAYS = [
     ('Monday', 'Pazar'),
 ]
 
+
+class PaymentMethod(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 class City(models.Model):
     name = models.CharField(max_length=30)
 
@@ -49,6 +56,9 @@ class Address(models.Model):
     neighborhood = models.ForeignKey(
         Neighborhood, on_delete=models.SET_NULL, null=True, verbose_name="Mahalle")
     address_info = models.TextField(max_length=255, blank=True, null=True, verbose_name="Sokak-Apartman")
+
+    def get_full_address(self):
+        return self.district.name + "-" + self.neighborhood.name + " Mahallesi-" + self.address_info
 
     def __str__(self):
         return self.district.name + "-" + self.neighborhood.name + " Mahallesi-" + self.address_info
@@ -100,6 +110,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
     products = models.ManyToManyField(Product, through=OrderProduct, verbose_name="Ürünler")
     delivery_day = models.CharField(max_length=50, default="Monday", choices=DAYS, verbose_name="Dağıtım Günü")
+    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Ödeme Şekli")
     total_amount = models.FloatField(default=0.0, verbose_name="Toplam Tutar")
 
     createt_at = models.DateTimeField(auto_now_add=True)
