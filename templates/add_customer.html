@@ -1,0 +1,53 @@
+{% extends "base/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <form method="post" id="CustomerForm" data-neighborhoodes-url="{% url 'ajax_load_neighborhoodes' %}"
+        enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="d-flex justify-content-center">
+            <h2 class=text-center>Müşteri Ekleme Ekranı</h2>
+        </div>
+        <div class="row d-flex justify-content-center">
+            <div class="col-4">
+                {{ customerform | crispy }}
+            </div>
+            <div class="col-4">
+                {{ addressform | crispy }}
+            </div>
+        </div>
+
+        <div class="row d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary">Müşteri Ekle</button>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"> 
+</script>
+
+<script>
+    $("#id_district").change(function () {
+        var url = $("#CustomerForm").attr(
+            "data-neighborhoodes-url"); // get the url of the `load_cities` view
+        var districtId = $(this).val(); // get the selected country ID from the HTML input
+
+        $.ajax({ // initialize an AJAX request
+            url: url, // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+            data: {
+                'district': districtId // add the country id to the GET parameters
+            },
+            success: function (
+                data) { // `data` is the return of the `load_cities` view function
+                $("#id_neighborhood").html(
+                    data
+                ); // replace the contents of the city input with the data that came from the server
+            }
+        });
+
+    });
+</script>
+
+{% endblock content %}

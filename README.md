@@ -1,1 +1,1 @@
-# HackerRankSoluitons
+# bogazici-sut

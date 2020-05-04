@@ -1,0 +1,68 @@
+{% extends "base/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="container">
+        <div class="row  d-flex justify-content-center">
+            <div class="col-3">
+                {{order_form|crispy}}
+            </div>
+        </div>
+        <div class="row  d-flex justify-content-center">
+            {{ order_formset.management_form }}
+
+            {% for form in order_formset %}
+            <div class="col-3 mx-3 my-2 border rounded">
+                {{form|crispy}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="container">
+        <div class="row  d-flex justify-content-end">
+            <div class="col-3">
+                <button type="submit" class="btn btn-danger btn-lg">Sipariş Ekle</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+<!-- 
+<Product: Süt - Manda>
+>>>     i.product.id
+  File "<console>", line 1
+    i.product.id
+    ^
+IndentationError: unexpected indent
+>>> for i in order.orderproduct_set.all():
+...     i.product.name
+... 
+'Manda'
+>>>     i.product.quantity
+  File "<console>", line 1
+    i.product.quantity
+    ^
+IndentationError: unexpected indent
+>>> for i in order.orderproduct_set.all():
+...     i.product.quantity
+... 
+Traceback (most recent call last):
+  File "<console>", line 2, in <module>
+AttributeError: 'Product' object has no attribute 'quantity'
+>>> for i in order.orderproduct_set.all():
+...     i.quantity
+... 
+1.0
+>>>     i.distribution_unit
+  File "<console>", line 1
+    i.distribution_unit
+    ^
+IndentationError: unexpected indent
+>>> for i in order.orderproduct_set.all():
+...     i.distribution_unit
+... 
+'kilogram'
+>>>  -->

@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-2 mb-2">
+    <div class="d-flex justify-content-center">
+        <h2>Müşteri Bilgi Ekranı</h2>
+    </div>
+</div>
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">Adı</th>
+                <th scope="col">Soyadı</th>
+                <th scope="col">Telefon</th>
+                <th scope="col">Telefon2</th>
+                <th scope="col">Adres</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+
+            <tr>
+                <th scope="row">{{customer.id}}</th>
+                <td>{{customer.first_name}}</td>
+                <td>{{customer.last_name}}</td>
+                <td>{{customer.phone1}}</td>
+                <td>{{customer.phone2}}</td>
+                <td>{{customer.address}}</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

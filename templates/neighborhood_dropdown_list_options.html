@@ -1,0 +1,4 @@
+<option value="">Mahalle</option>
+{% for neighborhood in neighborhoodes %}
+<option value="{{ neighborhood.pk }}">{{ neighborhood.name }}</option>
+{% endfor %}   
