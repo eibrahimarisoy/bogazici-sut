@@ -36,8 +36,12 @@ class District(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
+
 
 
 class Neighborhood(models.Model):
@@ -58,20 +62,20 @@ class Address(models.Model):
     address_info = models.TextField(max_length=255, blank=True, null=True, verbose_name="Sokak-Apartman")
 
     def get_full_address(self):
-        return self.district.name + "-" + self.neighborhood.name + " Mahallesi-" + self.address_info
+        return self.district.name + "-" + self.neighborhood.name + self.address_info
 
     def __str__(self):
-        return self.district.name + "-" + self.neighborhood.name + " Mahallesi-" + self.address_info
+        return self.district.name + "-" + self.neighborhood.name + self.address_info
 
 class Customer(models.Model):
-    first_name = models.CharField(max_length=50, verbose_name="Adı")
-    last_name = models.CharField(max_length=50, verbose_name="Soyadı")
+    first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
+    last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
     phone1 = models.CharField(max_length=50, verbose_name="Telefon1")
     phone2 = models.CharField(max_length=50, blank=True, null=True, verbose_name="Telefon2")
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.phone1}"
 
 
 class Category(models.Model):
@@ -97,6 +101,10 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.name}"
+    
+    class Meta:
+        ordering = ['category']
+
 
 
 class OrderProduct(models.Model):
@@ -109,9 +117,13 @@ class OrderProduct(models.Model):
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
     products = models.ManyToManyField(Product, through=OrderProduct, verbose_name="Ürünler")
-    delivery_day = models.CharField(max_length=50, default="Monday", choices=DAYS, verbose_name="Dağıtım Günü")
+    delivery_date = models.DateField(blank=True, null=True, verbose_name="Teslimat Tarihi")
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Ödeme Şekli")
     total_amount = models.FloatField(default=0.0, verbose_name="Toplam Tutar")
+    notes = models.CharField(max_length=50, default="", verbose_name="Notlar")
 
+    is_instagram = models.BooleanField(default=False, verbose_name="İnstagram?")
+    instagram_username = models.CharField(max_length=50, null=True, blank=True, help_text="Kullanıcı Adı")
+    
     createt_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -9,15 +9,26 @@ from .forms import AddressForm, CustomerForm, OrderForm, OrderProductForm
 from django.forms.models import inlineformset_factory
 from django.forms import modelformset_factory
 
+from django.conf import settings
+
+import os
 import xlwt
 import datetime
+from decimal import Decimal
+from django.utils.dateparse import parse_date
+
+from xlrd import open_workbook
+from order.models import City, District
 
 # Create your views here.
 
-def export_orders_xls(request):
-    time=datetime.date.today()
+def export_orders_xls(request, date):
+    print(date)
+    time = datetime.date.today()
+    date = parse_date(date)
+    print(date)
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = f'attachment; filename="orders-{time}.xls"'
+    response['Content-Disposition'] = f'attachment; filename="orders-{date}.xls"'
 
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Orders')
@@ -26,13 +37,13 @@ def export_orders_xls(request):
     font_style = xlwt.XFStyle()    
     font_style.font.bold = True
 
-    columns = ['Adı', 'Soyadı', 'Telefon', 'Adres', 'Sipariş', 'Toplam Tutar', 'Ödeme Şekli', ]
+    columns = ['Adı', 'Soyadı', 'Telefon', 'Adres', 'Sipariş', 'Toplam Tutar', 'Ödeme Şekli', 'Notlar' ]
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
 
     font_style = xlwt.XFStyle()
-    rows = Order.objects.all()
+    rows = Order.objects.filter(delivery_date=date)
     for row in rows:
         row_num += 1
         col_num = 0 
@@ -42,7 +53,7 @@ def export_orders_xls(request):
         ws.write(row_num, col_num + 3, row.customer.address.get_full_address(), font_style)
         string = ""
         for order in row.orderproduct_set.all():
-            string += (order.product.category.name) + '-' + (order.product.name) + "-" + str(order.quantity) + "-" + str(order.get_distribution_unit_display()) + "\n"
+            string += (order.product.category.name) + '-' + (order.product.name) + "-" + str(Decimal(order.quantity)) + "\n"
             
         ws.write(row_num, col_num + 4, string, font_style)
         ws.write(row_num, col_num + 5, row.total_amount, font_style)
@@ -51,12 +62,10 @@ def export_orders_xls(request):
         else:
             data=row.payment_method.name
         ws.write(row_num, col_num + 6, data, font_style)
+        ws.write(row_num, col_num + 7, row.notes, font_style)
         
             
             
-
-
-
     wb.save(response)
     return response
 
@@ -81,11 +90,11 @@ def order(request):
         total = 0
         for ordered_product in product.orderproduct_set.all():
             total += ordered_product.quantity
-        product_numbers.append(product.name + " "+ str(total))
+        product_numbers.append(product.name + " "+ str(Decimal(total)))
 
     context['product_numbers'] = product_numbers
     
-    context['orders'] = Order.objects.all()
+    context['orders'] = Order.objects.all().order_by('-createt_at')
     return render(request, 'order.html', context)
 
     
@@ -121,15 +130,24 @@ def add_order(request):
     # context['orderproductform'] = OrderProductForm()
     # order_formset = inlineformset_factory(Order, OrderProduct, form=OrderForm, extra=6)
     order_form = OrderForm()
-    order_formset = inlineformset_factory(Order, Order.products.through, fields=['product', 'quantity'], extra=3, max_num=9)
+    order_formset = inlineformset_factory(
+        Order,
+        Order.products.through,
+        fields=['product', 'quantity'],
+        extra=7,
+        max_num=9,
+        can_delete=False
+    )
     
     # order_formset = modelformset_factory(OrderProduct, form=OrderProductForm, extra=2, max_num=5)
     context['order_formset'] = order_formset
     context['order_form'] = order_form
 
     if request.method == "POST":
+        print('***')
         order_form = OrderForm(request.POST)
         order_formset = order_formset(request.POST)
+        print(order_form)
 
         if order_form.is_valid() and order_formset.is_valid():
             order = order_form.save(commit=True)
@@ -167,3 +185,19 @@ def load_neighborhoodes(request):
 #         district_id=district_id).order_by('name')
 #     print(townships)
 #     return render(request, 'advertisement/township_dropdown_list_options.html', {'townships': townships})
+
+def add_district_and_neighborhood(request):
+    file_name = os.path.join(settings.BASE_DIR, "mahalle.xls")
+     
+    file = open_workbook(file_name)
+    sheet = file.sheet_by_index(0)
+    col_num=0
+    for row_num in range(sheet.nrows):
+        district_name = (sheet.cell(row_num, col_num).value.strip()).title()
+        neighborhood = (sheet.cell(row_num, col_num + 1).value.strip()).title()
+        city = City.objects.first()
+        district, district_created = District.objects.get_or_create(city=city, name=district_name)
+
+        Neighborhood.objects.create(district=district, name=neighborhood)
+        print(district, neighborhood)
+    return redirect('index')

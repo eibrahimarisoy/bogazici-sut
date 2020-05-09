@@ -11,28 +11,30 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'index' %}">Anasayfa <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item active dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Müşteri
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{% url 'customer' %}">Müşteriler</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'add_customer' %}">Müşteri Ekle</a>
-                    </div>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'customer' %}">Müşteriler</a>
+
                 </li>
-                <li class="nav-item active dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Sipariş
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{% url 'order' %}">Siparişler</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'add_order' %}">Sipariş Ekle</a>
-                    </div>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'add_customer' %}">Müşteri Ekle</a>
+
                 </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'order' %}">Siparişler</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'add_order' %}">Sipariş Ekle</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Ürün Ekle</a>
+                </li>
+
+
+                <!-- <li class="nav-item active dropdown">
+                    <a href="{% url 'add_district_and_neighborhood' %}">mahalle ekle</a>
+                </li> -->
             </ul>
         </div>
     </nav>
