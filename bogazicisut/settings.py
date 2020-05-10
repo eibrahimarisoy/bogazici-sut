@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'crispy_forms',
-    'dynamic_formsets',
+    'tempus_dominus',
     'order',
 
 ]

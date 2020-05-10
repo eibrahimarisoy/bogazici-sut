@@ -5,6 +5,7 @@ from django.forms.fields import DateField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Column, HTML, Layout, Reset, Row, Submit
 import datetime
+from tempus_dominus.widgets import DatePicker
 
 
 class ProductForm(forms.ModelForm):
@@ -29,7 +30,20 @@ class OrderForm(forms.ModelForm):
         fields = ['customer', 'delivery_date', 'payment_method', 'notes', 'is_instagram', 'instagram_username']
         
     instagram_username= forms.CharField(label='', help_text="Kullanıcı Adı")
-    delivery_date = forms.DateField(label="Teslim Tarihi", widget=forms.SelectDateWidget,initial=datetime.date.today)
+    delivery_date = forms.DateField(
+        label="Teslim Tarihi",
+        widget=DatePicker(options={
+            'minDate': '2020-01-01',
+            'maxDate': '2022-01-01',
+            'format': 'DD/MM/YYYY',
+            'language': 'tr-TR',
+            'localize': True
+        }),
+        initial=datetime.date.today()
+    )
+
+
+
     notes = forms.CharField(label="Notlar")
     
     def __init__(self, *args, **kwargs):
