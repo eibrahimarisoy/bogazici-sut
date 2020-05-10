@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponse
 
 from .models import Address, Customer, Neighborhood, Order, OrderProduct, Product
-from .forms import AddressForm, CustomerForm, OrderForm, OrderProductForm
+from .forms import AddressForm, CustomerForm, OrderForm, OrderProductForm, ProductForm
 
 from django.forms.models import inlineformset_factory
 from django.forms import modelformset_factory
@@ -119,8 +119,8 @@ def add_customer(request):
             messages.warning(request, "Hatalı yada eksik bilgi girdiniz")
             return render(request, 'add_customer.html', context)
     
-    context['addressform'] = AddressForm()
-    context['customerform'] = CustomerForm()
+    context['address_form'] = AddressForm()
+    context['customer_form'] = CustomerForm()
     return render(request, 'add_customer.html', context)
 
 
@@ -201,3 +201,133 @@ def add_district_and_neighborhood(request):
         Neighborhood.objects.create(district=district, name=neighborhood)
         print(district, neighborhood)
     return redirect('index')
+
+
+def add_product(request):
+    context = dict()
+    product_form = ProductForm(request.POST or None)
+    if request.method == "POST":
+        if product_form.is_valid():
+            product_form.save()
+            messages.success(request, "Ürün Başarıyla Eklendi.")
+            return redirect('products')
+
+        context['product_form'] = product_form
+        messages.warning(request, 'Eksik Bilgi Girdiniz.')
+    
+    context['product_form'] = product_form
+    return render(request, 'add_product.html', context)
+
+
+def products(request):
+    context = dict()
+    products = Product.objects.all()
+    context['products'] = products
+
+    return render(request, 'product.html', context)
+
+
+def update_product(request, id):
+    context = dict()
+    product = get_object_or_404(Product, id=id)
+    product_form = ProductForm(instance=product)
+
+    if request.method == "POST":
+        product = ProductForm(request.POST, instance=product)
+        if product.is_valid():
+            product.save()
+            messages.success(request, 'Ürün Başarıyla Güncellendi.')
+            return redirect('products')
+
+        messages.warning(request, 'Eksik Bilgi Girdiniz.')
+
+    context['product_form'] = product_form
+    return render(request, 'add_product.html', context)
+
+
+def delete_product(request, id):
+    product = get_object_or_404(Product, id=id)
+    product.delete()
+    messages.success(request, 'Ürün Silindi')
+    return redirect('products')
+
+
+def update_customer(request, id):
+    context = dict()
+    customer = get_object_or_404(Customer, id=id)
+    address_form = AddressForm(instance=customer.address)
+    customer_form = CustomerForm(instance=customer)
+
+    if request.method == "POST":
+        customer_form = CustomerForm(request.POST, instance=customer)
+        address_form = AddressForm(request.POST, instance=customer.address)
+        if customer_form.is_valid() and address_form.is_valid():
+            customer_form.save()
+            address_form.save()
+
+            messages.success(request, 'Müşteri Bilgileri Başarıyla Güncellendi.')
+            return redirect('customer')
+        
+        messages.warning(request, 'Eksik Bilgi Girdiniz.')
+
+    context['address_form'] = address_form
+    context['customer_form'] = customer_form
+    return render(request, 'add_customer.html', context)
+
+def delete_customer(request, id):
+    customer = get_object_or_404(Customer, id=id)
+    customer.delete()
+    messages.success(request, 'Müşteri Bilgileri Başarıyla Silindi.')
+    return redirect('customer')
+
+
+def delete_order(request, id):
+    order = get_object_or_404(Order, id=id)
+    order.delete()
+    messages.success(request, 'Sipariş Başarıyla Silindi.')
+    return redirect('order')
+
+
+def update_order(request, id):
+    context = dict()
+    order = get_object_or_404(Order, id=id)
+    order_form = OrderForm(instance=order)
+    
+    OrderInlineFormSet = inlineformset_factory(
+        Order,
+        Order.products.through,
+        fields=['product', 'quantity'],
+        extra=7,
+        max_num=9,
+        can_delete=False
+    )
+    order_inline_formset = OrderInlineFormSet(instance=order)
+
+    if request.method == "POST":
+        order_form = OrderForm(request.POST, instance=order)
+        order_inline_formset = OrderInlineFormSet(request.POST, instance=order)
+
+        if order_form.is_valid() and order_inline_formset.is_valid():
+            order = order_form.save(commit=True)
+            
+            order_products = order_inline_formset.save(commit=False)
+            total_amount = 0
+            for product in order_products:
+                product.order = order
+                total_amount += product.quantity*product.product.price
+                product.save()
+            
+            order.total_amount = total_amount
+            order.save()
+            messages.success(request, 'Sipariş Bilgileri Başarıyla Güncellendi.')
+            return redirect('order')
+        
+        context['order_form'] = order_form
+        context['order_formset'] = order_inline_formset
+        messages.warning(request, 'Eksik Bilgi Girdiniz.')
+        return render(request, 'add_order.html', context)
+
+    context['order_form'] = order_form
+    context['order_formset'] = order_inline_formset
+    
+    return render(request, 'add_order.html', context)

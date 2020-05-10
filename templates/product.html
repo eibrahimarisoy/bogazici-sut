@@ -1,0 +1,44 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="container mt-2 mb-2">
+    <div class="d-flex justify-content-center">
+        <h2>Ürün Bilgi Ekranı</h2>
+    </div>
+</div>
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">Ürün Adı</th>
+                <th scope="col">Kategorisi</th>
+                <th scope="col">Dağıtım Birimi</th>
+                <th scope="col">Fiyatı</th>
+                <th scope="col">Düzenle</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+
+            <tr>
+                <th scope="row">{{product.id}}</th>
+                <td>{{product.name}}</td>
+                <td>{{product.category}}</td>
+                <td>{{product.get_distribution_unit_display}}</td>
+                <td>{{product.price}}</td>
+                <td><a href="{% url 'update_product' product.id %}" class="btn btn-info">Güncelle</a>
+                    <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Ürün Sil</a></td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

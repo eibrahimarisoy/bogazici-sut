@@ -46,18 +46,16 @@
             $("#datepicker").datepicker({
                 language: 'tr-TR',
                 format: 'yyyy-mm-dd',
-                
+
             });
         });
     </script>
     <script>
-        $('#datepicker').change(function()
-        {
-            var data =  $(this).val()
+        $('#datepicker').change(function () {
+            var data = $(this).val()
             var url_mask = "{% url 'export_orders_xls' 12345 %}".replace(/12345/, data.toString());
             $('#export').attr('href', url_mask)
-        }
-        )
+        })
     </script>
 
 
@@ -65,27 +63,26 @@
 
     <div class="container">
         <table class="table table-striped table-responsive-md table-sm">
-            <thead style="text-align:center">
-                <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">Adı</th>
-                    <th scope="col">Teslimat Tarihi</th>
-                    <th scope="col">Telefon</th>
-                    <th>Adres</th>
-                    <th scope="col">Sipariş Detay</th>
-                    <th scope="col">Toplam Tutar</th>
+            <thead>
+                <tr class="d-flex">
+                    <th class="col-1">id</th>
+                    <th class="col-1">Teslimat Tarihi</th>
+                    <th class="col-2">Telefon</th>
+                    <th class="col-2">Adres</th>
+                    <th class="col-3">Sipariş Detay</th>
+                    <th class="col-1">Toplam Tutar</th>
+                    <th class="col-2">Düzenle</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
 
-                <tr style="vertical-align:middle">
-                    <th scope="row">{{order.id}}</th>
-                    <td>{{order.customer.first_name}}{{order.customer.last_name}}</td>
-                    <td>{{order.delivery_date}}</td>
-                    <td>{{order.customer.phone1 | phone2numeric}}</td>
-                    <td>{{order.customer.address}}</td>
-                    <td>
+                <tr class="d-flex">
+                    <td class="col-1">{{order.id}}</td>
+                    <td class="col-1">{{order.delivery_date}}</td>
+                    <td class="col-2">{{order.customer.phone1 | phone2numeric}}</td>
+                    <td class="col-2">{{order.customer.address}}</td>
+                    <td class="col-3">
                         {% for order in order.orderproduct_set.all %}
 
                         {{ order.product.name }}
@@ -99,7 +96,11 @@
 
                         {% endfor %}
                     </td>
-                    <td>{{order.total_amount}}</td>
+                    <td class="col-1">{{order.total_amount}}</td>
+                    <td class="col-2">
+                        <a href="{% url 'update_order' order.id %}" class="btn btn-info">Güncelle</a>
+                        <a href="{% url 'delete_order' order.id %} " class="btn btn-danger">Sipariş Sil</a>
+                    </td>
                 </tr>
 
                 {% endfor %}
@@ -108,3 +109,5 @@
         </table>
     </div>
     {% endblock content %}
+
+

@@ -2,10 +2,10 @@ from django.db import models
 
 # Create your models here.
 DISTRIBUTION_UNITS = [
-    ('piece', 'adet'),
-    ('liter', 'litre'),
-    ('kilogram', 'kg'),
-    ('kangal', 'kangal'),
+    ('piece', 'Adet'),
+    ('liter', 'LT'),
+    ('kilogram', 'KG'),
+    ('kangal', 'Kangal'),
 ]
 
 DAYS = [

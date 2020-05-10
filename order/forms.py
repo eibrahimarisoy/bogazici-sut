@@ -1,10 +1,17 @@
 from django import forms
-from .models import Address, Customer, OrderProduct, Order
+from .models import Address, Customer, OrderProduct, Order, Product
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.fields import DateField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Column, HTML, Layout, Reset, Row, Submit
 import datetime
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ('category', 'name', 'distribution_unit', 'price')
+        
 
 class AddressForm(forms.ModelForm):
     class Meta:
@@ -34,7 +41,7 @@ class OrderForm(forms.ModelForm):
         self.fields['instagram_username'].required = False
         self.fields['notes'].required = False
         
-        
+
 class OrderProductForm(forms.ModelForm):
     class Meta:
         model = OrderProduct
