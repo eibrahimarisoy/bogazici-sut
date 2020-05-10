@@ -1,41 +1,36 @@
 {% extends "base/base.html" %}
-
 {% block content %}
 <div class="container mt-2 mb-2">
     <div class="d-flex justify-content-center">
         <h2>Müşteri Bilgi Ekranı</h2>
     </div>
 </div>
-
 <div class="container">
     <table class="table table-striped">
         <thead>
             <tr class="d-flex">
-                <th class="col-1">id</th>
-                <th class="col-1">Adı</th>
-                <th class="col-1">Soyadı</th>
-                <th class="col-2">Telefon</th>
-                <th class="col-4">Adres</th>
-                <th class="col-3">Düzenle</th>
+                <th class="col-lg-1">id</th>
+                <th class="col-lg-1">Adı</th>
+                <th class="col-lg-1">Soyadı</th>
+                <th class="col-lg-2">Telefon</th>
+                <th class="col-lg-4">Adres</th>
+                <th class="col-lg-3">Düzenle</th>
             </tr>
         </thead>
         <tbody>
             {% for customer in customers %}
-
             <tr class="d-flex">
-                <th class="col-1">{{customer.id}}</th>
-                <td class="col-1">{{customer.first_name}}</td>
-                <td class="col-1">{{customer.last_name}}</td>
-                <td class="col-2">{{customer.phone1}}</td>
-                <td class="col-4">{{customer.address}}</td>
-                <td class="col-3">
+                <th class="col-lg-1">{{customer.id}}</th>
+                <td class="col-lg-1">{{customer.first_name}}</td>
+                <td class="col-lg-1">{{customer.last_name}}</td>
+                <td class="col-lg-2">{{customer.phone1}}</td>
+                <td class="col-lg-4">{{customer.address}}</td>
+                <td class="col-lg-3">
                     <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
                     <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Müşteri Sil</a>
                 </td>
             </tr>
-
             {% endfor %}
-
         </tbody>
     </table>
 </div>
