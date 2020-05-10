@@ -7,70 +7,58 @@
 <h3 class="mt-2 text-center font-weight-bold">Sipariş Ekleme Ekranı</h3>
 <h5 class="mt-1 text-center">Müşteri Bilgileri</h5>
 
-<form method="post" enctype="multipart/form-data" novalidate>
-    {{ order_form.media }}
-    {% csrf_token %}
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-4">
+<div class="container">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ order_form.media }}
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-lg-3">
                 {{ order_form.customer |as_crispy_field }}
             </div>
-            <div class="col-4">
+            <div class="col-lg-3">
                 {{ order_form.payment_method|as_crispy_field }}
             </div>
-            <div class="col-3">
-
+            <div class="col-lg-3">
                 {{ order_form.delivery_date |as_crispy_field }}
-
             </div>
-
         </div>
-
-    </div>
-    <div class="row">
-        <div class="col-3">
-            {{ order_form.is_instagram |as_crispy_field}}
+        <div class="row justify-content-center">
+            <div class="col-lg-3">
+                {{ order_form.is_instagram |as_crispy_field}}
+            </div>
+            <div class="col-lg-3">
+                {{ order_form.instagram_username |as_crispy_field }}
+            </div>
         </div>
-        <div class="col-3">
-            {{ order_form.instagram_username |as_crispy_field }}
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                {{ order_form.notes | as_crispy_field }}
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            {{ order_form.notes | as_crispy_field }}
-        </div>
-    </div>
-    <h5 class="text-center">Ürün Bilgileri</h5>
-
-    <div class="row mt-3 d-flex justify-content-center">
-        {{ order_formset.management_form}}
-        {{ order_formset.media }}
-
-        <div class="col">
-            <div class="row justify-content-center">
-                {% for form in order_formset %}
-
-                <div id="{{ forloop.counter }}" class="col-md-3 table-dark rounded mx-1 my-1 py-3 px-5">
-                    {{ form | crispy }}
+        <h5 class="text-center">Ürün Bilgileri</h5>
+        <div class="row mt-3 justify-content-center">
+            {{ order_formset.management_form}}
+            {{ order_formset.media }}
+            <div class="col-lg">
+                <div class="row justify-content-center">
+                    {% for form in order_formset %}
+                    <div id="{{ forloop.counter }}" class="col-lg-3 table-dark rounded mx-1 my-1 py-3 px-5">
+                        {{ form | crispy }}
+                    </div>
+                    {% endfor %}
                 </div>
-
-                {% endfor %}
-
             </div>
         </div>
-    </div>
-    </div>
-
-    <div class="container">
-        <div class="row  d-flex justify-content-end">
-            <div class="col-3">
-                <span id="add_product" href="" class="btn btn-primary btn-lg">Ürün Ekle</span>
+        <div class="row justify-content-between">
+            <div class="col-lg-3">
+                <span id="add_product" href="" class="btn btn-primary btn-lg mb-1">Ürün Ekle</span>
+            </div>
+            <div class="col-lg-3 align-self-end">
                 <button type="submit" class="btn btn-danger btn-lg">Sipariş Kaydet</button>
             </div>
         </div>
-    </div>
-</form>
-
+    </form>
+</div>
 
 
 
@@ -91,9 +79,9 @@
 </script>
 
 <script type="text/javascript">
-    var condition = $('#4')
-    var condition1 = $('#5')
-    var condition2 = $('#6')
+    var condition = $('#5')
+    var condition1 = $('#6')
+    var condition2 = $('#7')
 
     var liste = [condition, condition1, condition2]
 
@@ -111,14 +99,5 @@
 
     })
 </script>
-<!-- <script>
-    $(document).ready(function() {
-        $("#datetimepicker1").datetimepicker({
-            format: 'DD/MM/YYYY',
-        });
-    });
-</script> -->
-
-
 
 {% endblock content %}

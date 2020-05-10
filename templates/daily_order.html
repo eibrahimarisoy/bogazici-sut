@@ -1,126 +1,105 @@
 {% extends "base/base.html" %}
 {% block content %}
 
-<div class="container mt-2 mb-2">
-    <div class="d-flex justify-content-center">
-        <h2>Günlük Sipariş Bilgi Ekranı</h2>
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <h2>Günlük Sipariş Bilgi Ekranı</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col  text-center">
+            <h5>{{ exact_date }}</h5>
+            <p>{{ exact_date | date:'l'}}</p>
+        </div>
     </div>
 </div>
 <br>
 
 <div class="container">
     <nav>
-        <div class="nav nav-tabs justify-content-center" id="nav-tab" role="tablist">
+        <div class="nav nav-tabs justify-content-center">
             {% for day in days %}
-            <a class="nav-item nav-link" id="{{ day | date:'l'}}" href="{% url 'daily_order' day %}">{{day}} {{ day | date:'l'}}</a>
+            <a class="nav-item nav-link {% if exact_date == day %} active {% endif %}" id="{{ day | date:'l'}}" href="{% url 'daily_order' day %}">
+                {{day}}
+                {{ day | date:'l'}}</a>
             {% endfor %}
 
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
-            <div class="container">
-                <div class="row justify-content-center">
+        <div class="container">
+            <div class="row justify-content-center">
 
-                    {% for product in product_numbers %}
+                {% for product in product_numbers %}
 
-                    <div class="col-2 text-center px-2 py-2 my-2 mx-2 my-2 table table-dark">
-                        {{product}}
-                    </div>
+                <div class="col-2 text-center px-2 py-2 my-2 mx-2 my-2 table table-dark">
+                    {{product}}
+                </div>
 
-                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="container justify-content-center">
+            <div class="row">
+                <div class="col">
+                    <h4 class="text-right">
+                        <a id="export" style="color:green" href="{% url 'export_orders_xls' exact_date %}">
+                            <i class="fa fa-file-excel-o" style="font-size:24px;color:green"></i>
+                            Excele Aktar</a>
+                    </h4>
                 </div>
             </div>
+            <br>
+            <div class="container">
+                <table class="table table-striped table-responsive-md table-sm">
+                    <thead>
+                        <tr class="d-flex">
+                            <th class="col-1">id</th>
+                            <th class="col-2">Telefon</th>
+                            <th class="col-2">Adres</th>
+                            <th class="col-3">Sipariş Detay</th>
+                            <th class="col-1">Toplam Tutar</th>
+                            <th class="col-3">Düzenle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
 
-            <div class="container justify-content-center">
-                <div class="row">
+                        <tr class="d-flex">
+                            <td class="col-1">{{order.id}}</td>
+                            <td class="col-2">{{order.customer.phone1 | phone2numeric}}</td>
+                            <td class="col-2">{{order.customer.address}}</td>
+                            <td class="col-3">
+                                {% for order in order.orderproduct_set.all %}
 
-                    <div class="col">
-                        <h3 class="text-right">
-                            <!-- <i class="fa fa-table" style="font-size:48px;color:green"></i> -->
-                            <input id="datepicker">
-                            <a id="export" style="color:green" href="">
-                                <i class="fa fa-file-excel-o" style="font-size:48px;color:green"></i>
-                                Excele Aktar</a>
-                        </h3>
-                    </div>
-                </div>
+                                {{ order.product.name }}
+                                {{order.quantity|floatformat}}
 
-                <!-- Fengyuan Chen's Datepicker -->
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.css"
-                    integrity="sha256-b88RdwbRJEzRx95nCuuva+hO5ExvXXnpX+78h8DjyOE=" crossorigin="anonymous" />
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.js"
-                    integrity="sha256-/7FLTdzP6CfC1VBAj/rsp3Rinuuu9leMRGd354hvk0k=" crossorigin="anonymous"></script>
+                                {% if not foorloop.last %}
+                                <br>
+                                {% else %}
 
-                <script>
-                    $(document).ready(function () {
-                        $("#datepicker").datepicker({
-                            language: 'tr-TR',
-                            format: 'yyyy-mm-dd',
+                                {% endif %}
 
-                        });
-                    });
-                </script>
-                <script>
-                    $('#datepicker').change(function () {
-                        var data = $(this).val()
-                        var url_mask = "{% url 'export_orders_xls' 12345 %}".replace(/12345/, data.toString());
-                        $('#export').attr('href', url_mask)
-                    })
-                </script>
+                                {% endfor %}
+                            </td>
+                            <td class="col-1">{{order.total_amount}}</td>
+                            <td class="col-3">
+                                <a href="{% url 'update_order' order.id %}" class="btn btn-info">Güncelle</a>
+                                <a href="{% url 'delete_order' order.id %} " class="btn btn-danger">Sipariş Sil</a>
+                            </td>
+                        </tr>
 
+                        {% endfor %}
 
-                <br>
-
-                <div class="container">
-                    <table class="table table-striped table-responsive-md table-sm">
-                        <thead>
-                            <tr class="d-flex">
-                                <th class="col-1">id</th>
-                                <th class="col-1">Teslimat Tarihi</th>
-                                <th class="col-2">Telefon</th>
-                                <th class="col-2">Adres</th>
-                                <th class="col-3">Sipariş Detay</th>
-                                <th class="col-1">Toplam Tutar</th>
-                                <th class="col-2">Düzenle</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for order in orders %}
-
-                            <tr class="d-flex">
-                                <td class="col-1">{{order.id}}</td>
-                                <td class="col-1">{{order.delivery_date}} {{order.delivery_date| date:"l"}}</td>
-                                <td class="col-2">{{order.customer.phone1 | phone2numeric}}</td>
-                                <td class="col-2">{{order.customer.address}}</td>
-                                <td class="col-3">
-                                    {% for order in order.orderproduct_set.all %}
-
-                                    {{ order.product.name }}
-                                    {{order.quantity|floatformat}}
-
-                                    {% if not foorloop.last %}
-                                    <br>
-                                    {% else %}
-
-                                    {% endif %}
-
-                                    {% endfor %}
-                                </td>
-                                <td class="col-1">{{order.total_amount}}</td>
-                                <td class="col-2">
-                                    <a href="{% url 'update_order' order.id %}" class="btn btn-info">Güncelle</a>
-                                    <a href="{% url 'delete_order' order.id %} " class="btn btn-danger">Sipariş Sil</a>
-                                </td>
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 {% endblock content %}

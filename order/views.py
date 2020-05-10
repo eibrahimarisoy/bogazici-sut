@@ -23,8 +23,12 @@ from order.models import City, District
 # Create your views here.
 
 def export_orders_xls(request, date):
-    numbers = date.split('-')
-    date = datetime.date(int(numbers[2]), int(numbers[1]), int(numbers[0]))
+    if parse_date(date) is None:
+        numbers = date.split('-')
+        date = datetime.date(int(numbers[2]), int(numbers[1]), int(numbers[0]))
+    else:
+        date = parse_date(date)
+    
     print(date)
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = f'attachment; filename="orders-{date}.xls"'
@@ -331,16 +335,14 @@ def update_order(request, id):
 
 
 def daily_order(request, date):
-    
+    context = dict()    
     if parse_date(date) is None:
         numbers = date.split('-')
         date = datetime.date(int(numbers[2]), int(numbers[1]), int(numbers[0]))
     else:
         date = parse_date(date)
-    context = dict()
 
     days = []
-
     today = datetime.date.today()
     for i in range(0, 7):
         days.append(today + datetime.timedelta(i))
@@ -359,5 +361,6 @@ def daily_order(request, date):
 
     context['product_numbers'] = product_numbers
     orders = Order.objects.filter(delivery_date=date).order_by('-createt_at')
-    context['orders'] = orders 
+    context['orders'] = orders
+    context['exact_date'] = date
     return render(request, 'daily_order.html', context)
