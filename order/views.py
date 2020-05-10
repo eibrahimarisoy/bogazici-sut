@@ -23,9 +23,8 @@ from order.models import City, District
 # Create your views here.
 
 def export_orders_xls(request, date):
-    print(date)
-    time = datetime.date.today()
-    date = parse_date(date)
+    numbers = date.split('-')
+    date = datetime.date(int(numbers[2]), int(numbers[1]), int(numbers[0]))
     print(date)
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = f'attachment; filename="orders-{date}.xls"'
@@ -144,10 +143,8 @@ def add_order(request):
     context['order_form'] = order_form
 
     if request.method == "POST":
-        print('***')
         order_form = OrderForm(request.POST)
         order_formset = order_formset(request.POST)
-        print(order_form)
 
         if order_form.is_valid() and order_formset.is_valid():
             order = order_form.save(commit=True)
@@ -331,3 +328,36 @@ def update_order(request, id):
     context['order_formset'] = order_inline_formset
     
     return render(request, 'add_order.html', context)
+
+
+def daily_order(request, date):
+    
+    if parse_date(date) is None:
+        numbers = date.split('-')
+        date = datetime.date(int(numbers[2]), int(numbers[1]), int(numbers[0]))
+    else:
+        date = parse_date(date)
+    context = dict()
+
+    days = []
+
+    today = datetime.date.today()
+    for i in range(0, 7):
+        days.append(today + datetime.timedelta(i))
+
+    context['days'] = days
+
+    """"orders"""
+    products = Product.objects.all()
+
+    product_numbers = []
+    for product in products:
+        total = 0
+        for ordered_product in product.orderproduct_set.filter(order__delivery_date=date):
+            total += ordered_product.quantity
+        product_numbers.append(product.name + " "+ str(Decimal(total)))
+
+    context['product_numbers'] = product_numbers
+    orders = Order.objects.filter(delivery_date=date).order_by('-createt_at')
+    context['orders'] = orders 
+    return render(request, 'daily_order.html', context)

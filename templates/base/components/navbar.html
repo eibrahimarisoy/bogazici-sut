@@ -33,6 +33,9 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'add_product' %}">Ürün Ekle</a>
                 </li>
+                <li class="nav-item active">
+                    <a id="date" class="nav-link" href="">Günlük Siparişler</a>
+                </li>
 
 
                 <!-- <li class="nav-item active dropdown">
@@ -42,3 +45,19 @@
         </div>
     </nav>
 </div>
+
+<script>
+    $(document).ready(function () {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+
+        today = dd + '-' + mm + '-' + yyyy;
+        console.log(today);
+
+        var url_mask = "{% url 'daily_order' 12345 %}".replace(/12345/, today.toString());
+        console.log(url_mask)
+        $('#date').attr('href', url_mask)
+    })
+</script>

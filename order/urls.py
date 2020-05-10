@@ -3,7 +3,7 @@ from .views import index, add_customer, load_neighborhoodes, \
         customer, add_order, order, export_orders_xls, \
         add_district_and_neighborhood, add_product, products, \
         update_product, delete_product, update_customer, delete_customer, \
-        delete_order, update_order
+        delete_order, update_order, daily_order
 
 urlpatterns = [
     path('', index, name="index"),
@@ -27,5 +27,7 @@ urlpatterns = [
 
         #ajax
     # path('ajax/load-townships/', load_townships, name='ajax_load_townships'),  
-    path('ajax/load-neihgborhoodes/', load_neighborhoodes, name='ajax_load_neighborhoodes'),  
+    path('ajax/load-neihgborhoodes/', load_neighborhoodes, name='ajax_load_neighborhoodes'),
+    path('daily-order/<str:date>/', daily_order, name="daily_order"),
+
 ]
