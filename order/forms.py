@@ -7,6 +7,8 @@ from crispy_forms.layout import Column, HTML, Layout, Reset, Row, Submit
 import datetime
 from tempus_dominus.widgets import DatePicker
 
+from dal import autocomplete
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -20,15 +22,38 @@ class AddressForm(forms.ModelForm):
         fields = ('district', 'neighborhood', 'address_info',)
 
 class CustomerForm(forms.ModelForm):
+
     class Meta:
         model = Customer
         fields = ('first_name', 'last_name', 'phone1', 'phone2')
     
 class OrderForm(forms.ModelForm):
+    # customer = forms.ModelChoiceField(label="Müşteri Adı", queryset=Customer.objects.all(), attr={'class': 'selectpicker'})
+    # customer = forms.Select(choices=Customer.objects.all().values('phone2'), attrs={'class': 'selectpicker'})
+    
+    # customer = forms.ModelChoiceField(
+    #     queryset=Customer.objects.all(),
+    #     widget=autocomplete.ModelSelect2(url='country-autocomplete')
+    # )
     class Meta:
         model = Order
         fields = ['customer', 'delivery_date', 'payment_method', 'notes', 'is_instagram', 'instagram_username']
-        
+
+    # customer = forms.ModelChoiceField(queryset=Customer.objects.all().values('phone1'), widget=forms.Select(attrs={'class': 'selectpicker', "data-live-search":"true"}))
+    customer = forms.ModelChoiceField(
+        label="Müşteri",
+        queryset=Customer.objects.all(),
+        widget=autocomplete.ModelSelect2(url='customer_autocomplete', attrs={
+        # Set some placeholder
+        'data-placeholder': 'Müşteri Telefon No...',
+        # Only trigger autocompletion after 3 characters have been typed
+        'class': 'col',
+        'style': {'height':'38px'},
+     
+        # 'data-minimum-input-length': 3,
+    },)
+    )
+
     instagram_username= forms.CharField(label='', help_text="Kullanıcı Adı")
     delivery_date = forms.DateField(
         label="Teslim Tarihi",
@@ -36,7 +61,7 @@ class OrderForm(forms.ModelForm):
             'minDate': '2020-01-01',
             'maxDate': '2022-01-01',
             'format': 'DD/MM/YYYY',
-            'language': 'tr-TR',
+            'locale': "tr",
             'localize': True
         }),
         initial=datetime.date.today()

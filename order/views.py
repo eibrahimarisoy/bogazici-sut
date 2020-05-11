@@ -20,6 +20,24 @@ from django.utils.dateparse import parse_date
 from xlrd import open_workbook
 from order.models import City, District
 
+from dal import autocomplete
+
+
+
+
+class CustomerAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+
+        qs = Customer.objects.all()
+
+        if self.q:
+            qs = qs.filter(phone1__contains=self.q)
+
+        return qs
+
+
+
 # Create your views here.
 
 def export_orders_xls(request, date):
@@ -364,3 +382,17 @@ def daily_order(request, date):
     context['orders'] = orders
     context['exact_date'] = date
     return render(request, 'daily_order.html', context)
+
+def search_status(request):
+
+    if request.method == "GET":
+        search_text = request.GET['search_text']
+        if search_text is not None and search_text != u"":
+            search_text = request.GET['search_text']
+            print(search_text)
+            phones = Customer.objects.filter(phone1__contains = search_text)
+            print(phones)
+        else:
+            phones = []
+
+        return render(request, 'ajax_search.html', {'phones':phones})

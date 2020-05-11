@@ -1,0 +1,9 @@
+{% if phones %}
+        {% for phone in phones %}
+            <li class="list-group-item">
+                <p>{{phone}}</p>
+            </li>
+        {% endfor %}    
+{% else %}
+    <p>Müşteri Bulunamadı.</p>
+{% endif %}
