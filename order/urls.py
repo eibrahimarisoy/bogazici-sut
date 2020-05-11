@@ -3,7 +3,8 @@ from .views import index, add_customer, load_neighborhoodes, \
         customer, add_order, order, export_orders_xls, \
         add_district_and_neighborhood, add_product, products, \
         update_product, delete_product, update_customer, delete_customer, \
-        delete_order, update_order, daily_order, search_status, CustomerAutocomplete
+        delete_order, update_order, daily_order, search_status, CustomerAutocomplete, \
+        delivery_page, deliver_order
 from django.conf.urls import url
 
 urlpatterns = [
@@ -32,6 +33,8 @@ urlpatterns = [
     path('search-status/', search_status, name="search_status"),
 
     path('daily-order/<str:date>/', daily_order, name="daily_order"),
+    path('delivery-page/', delivery_page, name="delivery_page"),
+    path('deliver-order/<int:id>/', deliver_order, name="deliver_order"),
 
     url(
         r'^country-autocomplete/$',

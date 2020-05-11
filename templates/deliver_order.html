@@ -1,0 +1,58 @@
+{% extends "base/base.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <h2>Sipariş Teslim Bilgileri</h2>
+            <h4>Sipariş No: {{ order.pk }}</h4>
+        </div>
+    </div>
+</div>
+<br>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ order_form.media }}
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-lg-3">
+                {{ order_form.notes | as_crispy_field }}
+            </div>
+            <div class="col-lg-3">
+                {{ order_form.delivery_date |as_crispy_field }}
+            </div>
+            <div class="col-lg-3">
+                {{ order_form.payment_method | as_crispy_field }}
+            </div>
+            <div class="col-lg-3">
+                {{ order_form.received_money | as_crispy_field }}
+            </div>
+        </div>
+
+
+        <h5 class="text-center">Ürün Bilgileri</h5>
+        <div class="row mt-3 justify-content-center">
+            {{ order_formset.management_form}}
+            {{ order_formset.media }}
+            <div class="col-lg">
+                <div class="row justify-content-center">
+                    {% for form in order_formset %}
+                    <div id="{{ forloop.counter }}" class="col-lg-3 table-info rounded mx-1 my-1 py-3 px-5">
+                        {{ form | crispy }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-lg-3 align-self-end">
+                <button type="submit" class="btn btn-danger btn-lg">Sipariş Teslim Et</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% endblock content %}

@@ -121,6 +121,8 @@ class Order(models.Model):
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Ödeme Şekli")
     total_amount = models.FloatField(default=0.0, verbose_name="Toplam Tutar")
     notes = models.CharField(max_length=50, default="", verbose_name="Notlar")
+    delivery_status = models.BooleanField(default=False)
+    received_money = models.FloatField(default=0.0)
 
     is_instagram = models.BooleanField(default=False, verbose_name="İnstagram?")
     instagram_username = models.CharField(max_length=50, null=True, blank=True, help_text="Kullanıcı Adı")

@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponse
 
-from .models import Address, Customer, Neighborhood, Order, OrderProduct, Product
-from .forms import AddressForm, CustomerForm, OrderForm, OrderProductForm, ProductForm
+from .models import Address, Customer, Neighborhood, Order, OrderProduct, Product, PaymentMethod
+from .forms import AddressForm, CustomerForm, OrderForm, OrderProductForm, ProductForm, DeliverForm
 
 from django.forms.models import inlineformset_factory
 from django.forms import modelformset_factory
@@ -23,13 +23,64 @@ from order.models import City, District
 from dal import autocomplete
 
 
+def delivery_page(request):
+    context = dict()
+    today = datetime.date.today()
+    orders = Order.objects.filter(delivery_date=today)
+    context['orders'] = orders
+
+    return render(request, 'delivery_page.html', context)
+
+
+def deliver_order(request, id):
+    context = dict()
+        
+    order = get_object_or_404(Order, id=id)
+    order_form = DeliverForm(instance=order)
+        
+    OrderInlineFormSet = inlineformset_factory(
+        Order,
+        Order.products.through,
+        fields=['product', 'quantity'],
+        can_delete=False
+    )
+    order_inline_formset = OrderInlineFormSet(instance=order)
+
+    if request.method == "POST":
+        order_form = DeliverForm(request.POST, instance=order)
+        order_formset = OrderInlineFormSet(request.POST, instance=order)
+
+        if order_form.is_valid() and order_formset.is_valid():
+            order = order_form.save(commit=True)
+            
+            order_products = order_inline_formset.save(commit=False)
+            total_amount = 0
+            for product in order_products:
+                product.order = order
+                total_amount += product.quantity*product.product.price
+                product.save()
+            
+            order.total_amount = total_amount
+            order.delivery_status = True
+            order.save()
+            messages.success(request, 'Sipariş Teslim Edildi.')
+            return redirect('delivery_page')
+
+        context['order_form'] = order_form
+        context['order_formset'] = order_inline_formset
+        messages.warning(request, 'Eksik Bilgi Girdiniz.')
+        return render(request, 'deliver_order.html', context)
+
+    context['order_form'] = order_form
+    context['order_formset'] = order_inline_formset
+    return render(request, 'deliver_order.html', context)
 
 
 class CustomerAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         # Don't forget to filter out results depending on the visitor !
 
-        qs = Customer.objects.all()
+        qs = Customer.objects.all().order_by('phone1')
 
         if self.q:
             qs = qs.filter(phone1__contains=self.q)
@@ -96,6 +147,7 @@ def customer(request):
     context = dict()
     context['customers'] = Customer.objects.all()
     return render(request, 'customer.html', context)
+
 
 def order(request):
     context = dict()
@@ -195,12 +247,6 @@ def load_neighborhoodes(request):
     print(neighborhoodes)
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
 
-# def load_townships(request):
-#     district_id = request.GET.get('district')
-#     townships = Township.objects.filter(
-#         district_id=district_id).order_by('name')
-#     print(townships)
-#     return render(request, 'advertisement/township_dropdown_list_options.html', {'townships': townships})
 
 def add_district_and_neighborhood(request):
     file_name = os.path.join(settings.BASE_DIR, "mahalle.xls")
@@ -289,6 +335,7 @@ def update_customer(request, id):
     context['address_form'] = address_form
     context['customer_form'] = customer_form
     return render(request, 'add_customer.html', context)
+
 
 def delete_customer(request, id):
     customer = get_object_or_404(Customer, id=id)
@@ -379,6 +426,7 @@ def daily_order(request, date):
     context['orders'] = orders
     context['exact_date'] = date
     return render(request, 'daily_order.html', context)
+
 
 def search_status(request):
 

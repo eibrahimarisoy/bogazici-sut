@@ -26,13 +26,27 @@ class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = ('first_name', 'last_name', 'phone1', 'phone2')
+
+
+class DeliverForm(forms.ModelForm):
+
+    class Meta:
+        model = Order
+        fields = ['notes', 'delivery_date', 'payment_method', 'received_money']
     
-    
+    def __init__(self, *args, **kwargs):
+        super(DeliverForm, self).__init__(*args, **kwargs)
+
+        self.fields['delivery_date'].required = True
+        self.fields['payment_method'].required = True
+        self.fields['received_money'].required = True
+
+
 class OrderForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        fields = ['customer', 'delivery_date', 'payment_method', 'notes', 'is_instagram', 'instagram_username']
+        fields = ['customer', 'delivery_date', 'payment_method', 'received_money', 'notes', 'is_instagram', 'instagram_username']
 
     customer = forms.ModelChoiceField(
         label="Müşteri",
@@ -43,8 +57,8 @@ class OrderForm(forms.ModelForm):
                 # Set some placeholder
                 'data-placeholder': 'Müşteri Telefon No...',
                 # Only trigger autocompletion after 3 characters have been typed
-                'class': 'col',
-                'style': {'height':'38px'},
+                # 'class': 'col',
+                # 'style': {'height':'38px'},
                 # 'data-minimum-input-length': 3,
                 },
     ))
@@ -69,9 +83,10 @@ class OrderForm(forms.ModelForm):
 
         self.fields['customer'].required = True
         self.fields['delivery_date'].required = True
-        self.fields['payment_method'].required = True
         self.fields['instagram_username'].required = False
         self.fields['notes'].required = False
+        self.fields['received_money'].required = False
+        self.fields['payment_method'].required = False
         
 
 class OrderProductForm(forms.ModelForm):
