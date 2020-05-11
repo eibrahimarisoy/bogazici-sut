@@ -27,32 +27,27 @@ class CustomerForm(forms.ModelForm):
         model = Customer
         fields = ('first_name', 'last_name', 'phone1', 'phone2')
     
-class OrderForm(forms.ModelForm):
-    # customer = forms.ModelChoiceField(label="Müşteri Adı", queryset=Customer.objects.all(), attr={'class': 'selectpicker'})
-    # customer = forms.Select(choices=Customer.objects.all().values('phone2'), attrs={'class': 'selectpicker'})
     
-    # customer = forms.ModelChoiceField(
-    #     queryset=Customer.objects.all(),
-    #     widget=autocomplete.ModelSelect2(url='country-autocomplete')
-    # )
+class OrderForm(forms.ModelForm):
+
     class Meta:
         model = Order
         fields = ['customer', 'delivery_date', 'payment_method', 'notes', 'is_instagram', 'instagram_username']
 
-    # customer = forms.ModelChoiceField(queryset=Customer.objects.all().values('phone1'), widget=forms.Select(attrs={'class': 'selectpicker', "data-live-search":"true"}))
     customer = forms.ModelChoiceField(
         label="Müşteri",
         queryset=Customer.objects.all(),
-        widget=autocomplete.ModelSelect2(url='customer_autocomplete', attrs={
-        # Set some placeholder
-        'data-placeholder': 'Müşteri Telefon No...',
-        # Only trigger autocompletion after 3 characters have been typed
-        'class': 'col',
-        'style': {'height':'38px'},
-     
-        # 'data-minimum-input-length': 3,
-    },)
-    )
+        widget=autocomplete.ModelSelect2(
+            url='customer_autocomplete',
+            attrs={
+                # Set some placeholder
+                'data-placeholder': 'Müşteri Telefon No...',
+                # Only trigger autocompletion after 3 characters have been typed
+                'class': 'col',
+                'style': {'height':'38px'},
+                # 'data-minimum-input-length': 3,
+                },
+    ))
 
     instagram_username= forms.CharField(label='', help_text="Kullanıcı Adı")
     delivery_date = forms.DateField(
@@ -66,8 +61,6 @@ class OrderForm(forms.ModelForm):
         }),
         initial=datetime.date.today()
     )
-
-
 
     notes = forms.CharField(label="Notlar")
     
@@ -84,5 +77,10 @@ class OrderForm(forms.ModelForm):
 class OrderProductForm(forms.ModelForm):
     class Meta:
         model = OrderProduct
-        fields = '__all__'
-        exclude = ['order', 'distribution_unit',]
+        fields = ['product', 'quantity']
+    
+    def __init__(self, *args, **kwargs):
+        super(OrderProductForm, self).__init__(*args, **kwargs)
+
+        self.fields['product'].required = True
+        self.fields['quantity'].required = True

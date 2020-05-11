@@ -37,9 +37,6 @@ class CustomerAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
-
-# Create your views here.
-
 def export_orders_xls(request, date):
     if parse_date(date) is None:
         numbers = date.split('-')
@@ -47,7 +44,6 @@ def export_orders_xls(request, date):
     else:
         date = parse_date(date)
     
-    print(date)
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = f'attachment; filename="orders-{date}.xls"'
 
@@ -121,10 +117,9 @@ def order(request):
     
 def add_customer(request):
     context = dict()
+    address_form = AddressForm(request.POST or None)
+    customer_form = CustomerForm(request.POST or None)
     if request.method == "POST":
-        address_form = AddressForm(request.POST)
-        customer_form = CustomerForm(request.POST)
-
         if address_form.is_valid() and customer_form.is_valid():
             address = address_form.save()
             customer = customer_form.save(commit=False)
@@ -135,13 +130,13 @@ def add_customer(request):
             return redirect('customer')
 
         else:
-            context['addressform'] = address_form
-            context['customerform'] = customer_form
+            context['address_form'] = address_form
+            context['customer_form'] = customer_form
             messages.warning(request, "Hatalı yada eksik bilgi girdiniz")
             return render(request, 'add_customer.html', context)
     
-    context['address_form'] = AddressForm()
-    context['customer_form'] = CustomerForm()
+    context['address_form'] = address_form
+    context['customer_form'] = customer_form
     return render(request, 'add_customer.html', context)
 
 
@@ -157,7 +152,9 @@ def add_order(request):
         fields=['product', 'quantity'],
         extra=7,
         max_num=9,
-        can_delete=False
+        can_delete=False,
+        min_num=1,
+        validate_min=True
     )
     
     # order_formset = modelformset_factory(OrderProduct, form=OrderProductForm, extra=2, max_num=5)
