@@ -105,7 +105,7 @@ def export_orders_xls(request, date):
     font_style = xlwt.XFStyle()    
     font_style.font.bold = True
 
-    columns = ['Adı', 'Soyadı', 'Telefon', 'Adres', 'Sipariş', 'Toplam Tutar', 'Ödeme Şekli', 'Notlar' ]
+    columns = ['Telefon',' Adres', 'Tavuk', 'Yumurta', 'Süt', 'Tereyağ', 'Peynir', 'Toplam Tutar', 'Ödeme Şekli', 'Notlar' ]
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
@@ -115,22 +115,40 @@ def export_orders_xls(request, date):
     for row in rows:
         row_num += 1
         col_num = 0 
-        ws.write(row_num, col_num, row.customer.first_name, font_style)
-        ws.write(row_num, col_num + 1, row.customer.last_name, font_style)
-        ws.write(row_num, col_num + 2, row.customer.phone1, font_style)
-        ws.write(row_num, col_num + 3, row.customer.address.get_full_address(), font_style)
-        string = ""
+        ws.write(row_num, col_num, row.customer.phone1, font_style)
+        ws.write(row_num, col_num + 1, row.customer.address.get_full_address(), font_style)
+
+        tavuk, yumurta, süt, tereyağ, peynir = "", "", "", "", ""
+        
+        notes = row.notes
+        
         for order in row.orderproduct_set.all():
-            string += (order.product.category.name) + '-' + (order.product.name) + "-" + str(Decimal(order.quantity)) + "\n"
+            if order.product.category.name == "Tavuk":
+                tavuk += (order.product.name + "\n") * int(order.quantity)
             
-        ws.write(row_num, col_num + 4, string, font_style)
-        ws.write(row_num, col_num + 5, row.total_amount, font_style)
-        if row.payment_method is None:
-            data = "***"
-        else:
-            data=row.payment_method.name
-        ws.write(row_num, col_num + 6, data, font_style)
-        ws.write(row_num, col_num + 7, row.notes, font_style)
+            elif order.product.category.name == "Yumurta":
+                yumurta += (order.product.name + "\n") * int(order.quantity)
+            
+            elif order.product.category.name == "Süt":
+                süt += (order.product.name + "\n") * int(order.quantity)
+
+            elif order.product.category.name == "Tereyağ":
+                tereyağ += str(Decimal(order.quantity))
+
+            elif order.product.category.name == "Peynir":
+                peynir += (order.product.name + "\n") * int(order.quantity)
+            
+        if row.is_instagram:
+            notes += "\nKullanıcı Adı:" + row.instagram_username
+
+        ws.write(row_num, col_num + 2, tavuk, font_style)
+        ws.write(row_num, col_num + 3, yumurta, font_style)
+        ws.write(row_num, col_num + 4, süt, font_style)
+        ws.write(row_num, col_num + 5, tereyağ, font_style)
+        ws.write(row_num, col_num + 6, peynir, font_style)
+        ws.write(row_num, col_num + 7, row.total_amount, font_style)
+        ws.write(row_num, col_num + 8, "", font_style)
+        ws.write(row_num, col_num + 9, notes, font_style)
         
             
             
@@ -397,7 +415,7 @@ def update_order(request, id):
 
 
 def daily_order(request, date):
-    context = dict()    
+    context = dict()
     if parse_date(date) is None:
         numbers = date.split('-')
         date = datetime.date(int(numbers[2]), int(numbers[1]), int(numbers[0]))
@@ -425,6 +443,21 @@ def daily_order(request, date):
     orders = Order.objects.filter(delivery_date=date).order_by('-createt_at')
     context['orders'] = orders
     context['exact_date'] = date
+
+    """payments"""
+    pay_at_door = 0
+    eft = 0
+
+    for order in orders:
+        
+        if order.payment_method_id == 2:
+            pay_at_door += order.received_money
+        elif order.payment_method_id == 1: 
+            eft += order.total_amount
+    
+    context['pay_at_door'] = pay_at_door
+    context['eft'] = eft
+            
     return render(request, 'daily_order.html', context)
 
 

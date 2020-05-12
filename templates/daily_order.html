@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% block content %}
 
-<div class="container mt-2">
+<div class="container mt-1">
     <div class="row justify-content-center">
         <div class="col text-center">
             <h2>Günlük Bazlı Sipariş Bilgi Ekranı</h2>
@@ -22,12 +22,22 @@
     </div>
 </div>
 <br>
-
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-3">
+            <span>EFT: {{ eft }} TL</span>
+        </div>
+        <div class="col-3">
+            <span>Kapıda Ödeme: {{ pay_at_door }} TL</span>
+        </div>
+    </div>
+</div>
 <div class="container">
     <nav>
         <div class="nav nav-tabs justify-content-center">
             {% for day in days %}
-            <a class="nav-item nav-link {% if exact_date == day %} active {% endif %}" id="{{ day | date:'l'}}" href="{% url 'daily_order' day %}">
+            <a class="nav-item nav-link {% if exact_date == day %} active {% endif %}" id="{{ day | date:'l'}}"
+                href="{% url 'daily_order' day %}">
                 {{day}}
                 {{ day | date:'l'}}</a>
             {% endfor %}
