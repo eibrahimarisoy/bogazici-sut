@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save, m2m_changed
+from django.dispatch import receiver
 
 # Create your models here.
 DISTRIBUTION_UNITS = [
@@ -25,6 +27,7 @@ class PaymentMethod(models.Model):
     def __str__(self):
         return self.name
 
+
 class City(models.Model):
     name = models.CharField(max_length=30)
 
@@ -41,7 +44,6 @@ class District(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class Neighborhood(models.Model):
@@ -67,6 +69,7 @@ class Address(models.Model):
     def __str__(self):
         return self.district.name + "-" + self.neighborhood.name + self.address_info
 
+
 class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
@@ -87,6 +90,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Ürün Kategorisi")
     name = models.CharField(max_length=70, verbose_name="Ürün Adı")
@@ -106,22 +110,35 @@ class Product(models.Model):
         ordering = ['category']
 
 
-
-class OrderProduct(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name="Ürün Adı") 
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, verbose_name="Sipariş")
-    distribution_unit = models.CharField(max_length=30, choices=DISTRIBUTION_UNITS, default="piece", verbose_name="Dağıtım Birimi")
+class OrderItem(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name="Ürün Adı")
+    price = models.FloatField(default=0)
+    # order = models.ForeignKey('Order', on_delete=models.CASCADE, verbose_name="Sipariş")
+    is_deleted = models.BooleanField(default=False)
     quantity = models.FloatField(verbose_name="Miktar")
+
+    createt_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.product.name} price: {self.price} TL"
 
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
-    products = models.ManyToManyField(Product, through=OrderProduct, verbose_name="Ürünler")
+    items = models.ManyToManyField(OrderItem, verbose_name="Ürünler", related_name='order_item')
+
     delivery_date = models.DateField(blank=True, null=True, verbose_name="Teslimat Tarihi")
-    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Ödeme Şekli")
-    total_amount = models.FloatField(default=0.0, verbose_name="Toplam Tutar")
+    payment_method = models.ForeignKey(
+        PaymentMethod,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        verbose_name="Ödeme Şekli"
+    )
+    total_price = models.FloatField(default=0, verbose_name="Toplam Tutar")
     notes = models.CharField(max_length=50, default="", verbose_name="Notlar")
-    delivery_status = models.BooleanField(default=False)
+    is_delivered = models.BooleanField(default=False)
     received_money = models.FloatField(default=0.0)
 
     is_instagram = models.BooleanField(default=False, verbose_name="İnstagram?")
@@ -129,3 +146,38 @@ class Order(models.Model):
     
     createt_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"PK: {self.pk} - Total: {self.total_price} - Delivered: {self.is_delivered}"
+
+    def total_price_update(self):
+        if not self.is_delivered:
+            total_price = 0
+            for item in self.items.all():
+                if item.is_deleted == False:
+                    total_price += item.price * item.quantity
+            
+            self.total_price = total_price
+            self.save()
+
+
+@receiver(post_save, sender=OrderItem)
+def order_item_receiver(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.price = instance.product.price
+        instance.save()
+    if instance.order_item.last() is not None:
+        instance.price = instance.product.price
+        instance.order_item.last().total_price_update()
+
+
+@receiver(m2m_changed, sender=Order.items.through)
+def order_receiver(sender, instance, *args, **kwargs):
+    instance.total_price_update()
+
+
+@receiver(post_save, sender=Product)
+def order_item_receiver_for_update(sender, instance, *args, **kwargs):
+    for item in instance.orderitem_set.all():
+        item.price = instance.price
+        item.save()

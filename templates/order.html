@@ -44,10 +44,10 @@
                     <td class="col-2">{{order.customer.phone1 | phone2numeric}}</td>
                     <td class="col-2">{{order.customer.address}}</td>
                     <td class="col-3">
-                        {% for order in order.orderproduct_set.all %}
+                        {% for item in order.items.all %}
 
-                        {{ order.product.name }}
-                        {{order.quantity|floatformat}}
+                        {{ item.product.name }}
+                        {{item.quantity|floatformat}}
 
                         {% if not foorloop.last %}
                         <br>
@@ -57,8 +57,8 @@
 
                         {% endfor %}
                     </td>
-                    <td class="col-1">{{order.total_amount}}</td>
-                    <td class="col-2">
+                    <td class="col-1">{{order.total_price}}</td>
+                    <td class="col-2 {% if order.is_delivered %} d-none {% endif %}">
                         <a href="{% url 'update_order' order.id %}" class="btn btn-info">Güncelle</a>
                         <a href="{% url 'delete_order' order.id %} " class="btn btn-danger">Sipariş Sil</a>
                     </td>

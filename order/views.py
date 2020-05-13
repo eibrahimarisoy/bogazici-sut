@@ -3,11 +3,11 @@ from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponse
 
-from .models import Address, Customer, Neighborhood, Order, OrderProduct, Product, PaymentMethod
-from .forms import AddressForm, CustomerForm, OrderForm, OrderProductForm, ProductForm, DeliverForm
+from .models import Address, Customer, Neighborhood, Order, OrderItem, Product, PaymentMethod
+from .forms import AddressForm, CustomerForm, OrderForm, OrderItemForm, ProductForm, DeliverForm, BaseModelFormSet
 
 from django.forms.models import inlineformset_factory
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, formset_factory
 
 from django.conf import settings
 
@@ -38,41 +38,46 @@ def deliver_order(request, id):
     order = get_object_or_404(Order, id=id)
     order_form = DeliverForm(instance=order)
         
-    OrderInlineFormSet = inlineformset_factory(
-        Order,
-        Order.products.through,
-        fields=['product', 'quantity'],
-        can_delete=False
-    )
-    order_inline_formset = OrderInlineFormSet(instance=order)
+    OrderItemFormSet = modelformset_factory(
+        OrderItem,
+        form=OrderItemForm,
+        # max_num=9,
+        min_num=1,
+        extra=5,
+        can_delete=True,
+        )
+
+    order_item_form_set = OrderItemFormSet(queryset=order.items.all())
 
     if request.method == "POST":
-        order_form = DeliverForm(request.POST, instance=order)
-        order_formset = OrderInlineFormSet(request.POST, instance=order)
+            order_form = DeliverForm(request.POST, instance=order)
+            order_item_form_set = OrderItemFormSet(request.POST)
 
-        if order_form.is_valid() and order_formset.is_valid():
-            order = order_form.save(commit=True)
-            
-            order_products = order_inline_formset.save(commit=False)
-            total_amount = 0
-            for product in order_products:
-                product.order = order
-                total_amount += product.quantity*product.product.price
-                product.save()
-            
-            order.total_amount = total_amount
-            order.delivery_status = True
-            order.save()
-            messages.success(request, 'Sipariş Teslim Edildi.')
-            return redirect('delivery_page')
+            if order_form.is_valid() and order_item_form_set.is_valid():
+                order = order_form.save(commit=True)
+                order_items = order_item_form_set.save(commit=False)
+                for obj in order_item_form_set.deleted_objects:
+                    obj.delete()
 
-        context['order_form'] = order_form
-        context['order_formset'] = order_inline_formset
-        messages.warning(request, 'Eksik Bilgi Girdiniz.')
-        return render(request, 'deliver_order.html', context)
+                for item in order_items:
+                    item.save()
+                    order.items.add(item)
 
+                order.total_price_update()
+                order.is_delivered = True
+                order.save()
+                messages.success(request, 'Sipariş Bilgileri Başarıyla Güncellendi.')
+                return redirect('delivery_page')
+
+            context['order'] = order
+            context['order_form'] = order_form
+            context['order_formset'] = order_item_form_set
+            messages.warning(request, 'Eksik Bilgi Girdiniz.')
+            return render(request, 'deliver_order.html', context)
+
+    context['order'] = order
     context['order_form'] = order_form
-    context['order_formset'] = order_inline_formset
+    context['order_formset'] = order_item_form_set
     return render(request, 'deliver_order.html', context)
 
 
@@ -122,7 +127,7 @@ def export_orders_xls(request, date):
         
         notes = row.notes
         
-        for order in row.orderproduct_set.all():
+        for order in row.orderitem_set.all():
             if order.product.category.name == "Tavuk":
                 tavuk += (order.product.name + "\n") * int(order.quantity)
             
@@ -170,16 +175,20 @@ def customer(request):
 def order(request):
     context = dict()
 
+    """"orders"""
     products = Product.objects.all()
 
-    product_numbers = []
+    number_of_order_items = []
+
+
     for product in products:
         total = 0
-        for ordered_product in product.orderproduct_set.all():
-            total += ordered_product.quantity
-        product_numbers.append(product.name + " "+ str(Decimal(total)))
+        for item in product.orderitem_set.all():
+            total += item.quantity
 
-    context['product_numbers'] = product_numbers
+        number_of_order_items.append(f"{str(Decimal(total))} x {product.name}")
+
+    context['product_numbers'] = number_of_order_items
     
     context['orders'] = Order.objects.all().order_by('-createt_at')
     return render(request, 'order.html', context)
@@ -212,39 +221,31 @@ def add_customer(request):
 
 def add_order(request):
     context = dict()
-    # context['orderform'] = OrderForm()
-    # context['orderproductform'] = OrderProductForm()
-    # order_formset = inlineformset_factory(Order, OrderProduct, form=OrderForm, extra=6)
     order_form = OrderForm()
-    order_formset = inlineformset_factory(
-        Order,
-        Order.products.through,
-        fields=['product', 'quantity'],
-        extra=7,
-        max_num=9,
-        can_delete=False,
+
+    OrderItemFormSet = modelformset_factory(
+        OrderItem,
+        form=OrderItemForm,
+        formset=BaseModelFormSet,
+        max_num=8,
+        extra=5,
         min_num=1,
-        validate_min=True
-    )
-    
-    # order_formset = modelformset_factory(OrderProduct, form=OrderProductForm, extra=2, max_num=5)
-    context['order_formset'] = order_formset
+        )
+    context['order_formset'] = OrderItemFormSet()
     context['order_form'] = order_form
 
     if request.method == "POST":
         order_form = OrderForm(request.POST)
-        order_formset = order_formset(request.POST)
+        order_formset = OrderItemFormSet(request.POST)
 
         if order_form.is_valid() and order_formset.is_valid():
             order = order_form.save(commit=True)
             order_products = order_formset.save(commit=False)
-            total_amount = 0
-            for product in order_products:
-                product.order = order
-                total_amount += product.quantity*product.product.price
-                product.save()
-            
-            order.total_amount = total_amount
+            for item in order_products:
+                item.save()
+                order.items.add(item)
+
+            order.total_price_update()
             order.save()
             return redirect('order')
         
@@ -373,43 +374,45 @@ def update_order(request, id):
     context = dict()
     order = get_object_or_404(Order, id=id)
     order_form = OrderForm(instance=order)
-    
-    OrderInlineFormSet = inlineformset_factory(
-        Order,
-        Order.products.through,
-        fields=['product', 'quantity'],
-        extra=7,
-        max_num=9,
-        can_delete=False
-    )
-    order_inline_formset = OrderInlineFormSet(instance=order)
+
+    # TODO formset max and maybe another template
+    OrderItemFormSet = modelformset_factory(
+        OrderItem,
+        form=OrderItemForm,
+        # max_num=9,
+        min_num=1,
+        extra=5,
+        can_delete=True,
+        )
+
+    order_item_form_set = OrderItemFormSet(queryset=order.items.all())
 
     if request.method == "POST":
         order_form = OrderForm(request.POST, instance=order)
-        order_inline_formset = OrderInlineFormSet(request.POST, instance=order)
+        order_item_form_set = OrderItemFormSet(request.POST)
 
-        if order_form.is_valid() and order_inline_formset.is_valid():
+        if order_form.is_valid() and order_item_form_set.is_valid():
             order = order_form.save(commit=True)
+            order_items = order_item_form_set.save(commit=False)
+            for obj in order_item_form_set.deleted_objects:
+                obj.delete()
             
-            order_products = order_inline_formset.save(commit=False)
-            total_amount = 0
-            for product in order_products:
-                product.order = order
-                total_amount += product.quantity*product.product.price
-                product.save()
-            
-            order.total_amount = total_amount
+            for item in order_items:
+                item.save()
+                order.items.add(item)
+
+            order.total_price_update()
             order.save()
             messages.success(request, 'Sipariş Bilgileri Başarıyla Güncellendi.')
             return redirect('order')
         
         context['order_form'] = order_form
-        context['order_formset'] = order_inline_formset
+        context['order_formset'] = order_item_form_set
         messages.warning(request, 'Eksik Bilgi Girdiniz.')
         return render(request, 'add_order.html', context)
 
     context['order_form'] = order_form
-    context['order_formset'] = order_inline_formset
+    context['order_formset'] = order_item_form_set
     
     return render(request, 'add_order.html', context)
 
@@ -432,14 +435,17 @@ def daily_order(request, date):
     """"orders"""
     products = Product.objects.all()
 
-    product_numbers = []
+    number_of_order_items = []
+
+
     for product in products:
         total = 0
-        for ordered_product in product.orderproduct_set.filter(order__delivery_date=date):
-            total += ordered_product.quantity
-        product_numbers.append(product.name + " "+ str(Decimal(total)))
+        for item in product.orderitem_set.all().filter(order_item__delivery_date=date):
+            total += item.quantity
 
-    context['product_numbers'] = product_numbers
+        number_of_order_items.append(f"{str(Decimal(total))} x {product.name}")
+
+    context['product_numbers'] = number_of_order_items
     orders = Order.objects.filter(delivery_date=date).order_by('-createt_at')
     context['orders'] = orders
     context['exact_date'] = date
@@ -453,7 +459,7 @@ def daily_order(request, date):
         if order.payment_method_id == 2:
             pay_at_door += order.received_money
         elif order.payment_method_id == 1: 
-            eft += order.total_amount
+            eft += order.total_price
     
     context['pay_at_door'] = pay_at_door
     context['eft'] = eft

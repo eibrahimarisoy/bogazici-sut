@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    # 'django_extensions',
     'crispy_forms',
     'widget_tweaks',
     'tempus_dominus',

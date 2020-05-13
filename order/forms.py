@@ -1,5 +1,6 @@
 from django import forms
-from .models import Address, Customer, OrderProduct, Order, Product
+from django.forms import BaseModelFormSet
+from .models import Address, Customer, OrderItem, Order, Product
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.fields import DateField
 from crispy_forms.helper import FormHelper
@@ -40,13 +41,14 @@ class DeliverForm(forms.ModelForm):
         self.fields['delivery_date'].required = True
         self.fields['payment_method'].required = True
         self.fields['received_money'].required = True
+        self.fields['received_money'].label = "Tahsilat"
 
 
 class OrderForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        fields = ['customer', 'delivery_date', 'payment_method', 'received_money', 'notes', 'is_instagram', 'instagram_username']
+        fields = ['customer', 'delivery_date', 'notes', 'is_instagram', 'instagram_username']
 
     customer = forms.ModelChoiceField(
         label="Müşteri",
@@ -85,17 +87,23 @@ class OrderForm(forms.ModelForm):
         self.fields['delivery_date'].required = True
         self.fields['instagram_username'].required = False
         self.fields['notes'].required = False
-        self.fields['received_money'].required = False
-        self.fields['payment_method'].required = False
         
 
-class OrderProductForm(forms.ModelForm):
+class OrderItemForm(forms.ModelForm):
     class Meta:
-        model = OrderProduct
+        model = OrderItem
         fields = ['product', 'quantity']
     
     def __init__(self, *args, **kwargs):
-        super(OrderProductForm, self).__init__(*args, **kwargs)
+        super(OrderItemForm, self).__init__(*args, **kwargs)
 
         self.fields['product'].required = True
         self.fields['quantity'].required = True
+
+
+class BaseModelFormSet(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        # self.instance = kwargs.pop('instance')
+
+        super().__init__(*args, **kwargs)
+        self.queryset = Product.objects.none()

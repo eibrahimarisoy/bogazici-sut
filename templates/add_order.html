@@ -68,8 +68,11 @@
                 </div>
             </div>
         </div>
-        <div class="row justify-content-md-between">
-            <div class="col-lg-3">
+
+        <!-- {{ order_formset | crispy }} -->
+
+        <div class="row justify-content-center">
+            <div class="col-lg-3 align-self-center">
                 <span id="add_product" href="" class="btn btn-primary btn-lg mb-1">Ürün Ekle</span>
             </div>
             <div class="col-lg-3 align-self-end">
@@ -107,11 +110,13 @@ $(document).ready(function()
 </script>
 
 <script type="text/javascript">
-    var condition = $('#5')
-    var condition1 = $('#6')
-    var condition2 = $('#7')
 
-    var liste = [condition, condition1, condition2]
+    var condition3 = $('#7')
+    var condition4 = $('#8')
+    var condition5 = $('#9')
+
+
+    var liste = [condition3, condition4, condition5]
 
     for (elem of liste) {
         elem.hide()
@@ -152,9 +157,5 @@ $(document).ready(function()
         $('#result').html(data)
     }
 </script>
-<script type="text/javascript">
 
-
-
-</script>
 {% endblock content %}

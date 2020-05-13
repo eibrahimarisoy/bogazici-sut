@@ -7,6 +7,7 @@
         <div class="col text-center">
             <h2>Sipariş Teslim Bilgileri</h2>
             <h4>Sipariş No: {{ order.pk }}</h4>
+            <h5>Toplam Tutar: {{ order.total_price|floatformat }} TL</h5>
         </div>
     </div>
 </div>
