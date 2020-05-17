@@ -8,18 +8,9 @@
     </div>
 </div>
 <br>
-<div class="container">
-    <div class="row justify-content-center">
 
-        {% for product in product_numbers %}
 
-        <div class="col-2 text-center px-2 py-2 my-2 mx-2 my-2 table table-info">
-            {{product}}
-        </div>
-
-        {% endfor %}
-    </div>
-</div>
+{% include "base/components/number_of_products_ordered_table.html" %}
 
 {% include "base/components/orders_info_table.html" %}
 

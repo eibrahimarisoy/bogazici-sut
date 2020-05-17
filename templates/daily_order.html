@@ -11,28 +11,28 @@
         <div class="col  text-center">
             <h5>{{ exact_date }}</h5>
             <p>{{ exact_date | date:'l'}}</p>
-            <p>
-                <h4 class="text-center">
-                    <a id="export" style="color:green" href="{% url 'export_orders_xls' exact_date %}">
-                        <i class="fa fa-file-excel-o" style="font-size:24px;color:green"></i>
-                        Excele Aktar</a>
-                </h4>
-            </p>
         </div>
     </div>
 </div>
-<br>
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-3">
+        <div class="col-3 border rounded">
+
             <span>EFT: {{ eft }} TL</span>
         </div>
-        <div class="col-3">
+        <div class="col-3 border rounded">
             <span>Kapıda Ödeme: {{ pay_at_door }} TL</span>
+        </div>
+        <div class="col-3">
+            <a id="export" style="color:green" href="{% url 'export_orders_xls' exact_date %}">
+                <i class="fa fa-file-excel-o" style="font-size:24px;color:green"></i>
+                Excele Aktar</a>
+
         </div>
     </div>
 </div>
-<div class="container">
+<div class="container mt-2">
+    {% include "base/components/number_of_products_ordered_table.html" %}
     <nav>
         <div class="nav nav-tabs justify-content-center">
             {% for day in days %}
@@ -41,23 +41,8 @@
                 {{day}}
                 {{ day | date:'l'}}</a>
             {% endfor %}
-
         </div>
     </nav>
-    <div class="tab-content" id="nav-tabContent">
-        <div class="container">
-            <div class="row justify-content-center">
-
-                {% for product in product_numbers %}
-
-                <div class="col-2 text-center px-2 py-2 my-2 mx-2 my-2 table table-primary">
-                    {{product}}
-                </div>
-
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 </div>
 
 {% include "base/components/orders_info_table.html" %}

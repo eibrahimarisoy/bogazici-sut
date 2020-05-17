@@ -116,39 +116,39 @@ def export_orders_xls(request, date):
         ws.write(row_num, col_num, columns[col_num], font_style)
 
     font_style = xlwt.XFStyle()
-    rows = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
-    for row in rows:
+    orders = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
+    for order in orders:
         row_num += 1
         col_num = 0
         ws.write(row_num, col_num, f"{row_num}", font_style)
-        ws.write(row_num, col_num + 1, f"{row.customer.first_name.upper()} {row.customer.last_name.upper()}", font_style)
-        ws.write(row_num, col_num + 2, row.customer.phone1, font_style)
-        ws.write(row_num, col_num + 3, row.customer.address.get_full_address().upper(), font_style)
+        ws.write(row_num, col_num + 1, f"{order.customer.first_name.upper()} {order.customer.last_name.upper()}", font_style)
+        ws.write(row_num, col_num + 2, order.customer.phone1, font_style)
+        ws.write(row_num, col_num + 3, order.customer.address.get_full_address().upper(), font_style)
 
         tavuk, yumurta, süt, tereyağ, peynir, sucuk = "", "", "", "", "", ""
                
-        for order in row.items.all():
-            if order.product.category.name == "Tavuk":
-                tavuk += (order.product.name + "\n") * int(order.quantity)
+        for item in order.items.all():
+            if item.product.category.name == "Tavuk":
+                tavuk += (item.product.name + "\n") * int(item.quantity)
             
-            elif order.product.category.name == "Yumurta":
-                yumurta += str(Decimal(order.quantity))
+            elif item.product.category.name == "Yumurta":
+                yumurta += str(Decimal(item.quantity))
             
-            elif order.product.category.name == "Süt":
-                süt += (order.product.name + "\n") * int(order.quantity)
+            elif item.product.category.name == "Süt":
+                süt += (item.product.name + "\n") * int(item.quantity)
 
-            elif order.product.category.name == "Tereyağ":
-                tereyağ += (order.product.name) + " " + str(Decimal(order.quantity))
+            elif item.product.category.name == "Tereyağ":
+                tereyağ += (item.product.name) + " " + str(Decimal(item.quantity))
 
-            elif order.product.category.name == "Peynir":
-                peynir += (order.product.name + "\n") * int(order.quantity)
+            elif item.product.category.name == "Peynir":
+                peynir += (item.product.name + "\n") * int(item.quantity)
 
-            elif order.product.category.name == "Sucuk":
-                sucuk += f"{Decimal(order.quantity)} {order.product.distribution_unit}"
+            elif item.product.category.name == "Sucuk":
+                sucuk += f"{Decimal(item.quantity)} {item.product.distribution_unit}"
 
-        notes = row.notes
-        if row.is_instagram:
-            notes += "\nKullanıcı Adı:" + row.instagram_username
+        notes = order.notes
+        if order.is_instagram:
+            notes += "\nKullanıcı Adı:" + order.instagram_username
 
         ws.write(row_num, col_num + 4, tavuk.upper(), font_style)
         ws.write(row_num, col_num + 5, yumurta.upper(), font_style)
@@ -156,7 +156,7 @@ def export_orders_xls(request, date):
         ws.write(row_num, col_num + 7, tereyağ.upper(), font_style)
         ws.write(row_num, col_num + 8, peynir.upper(), font_style)
         ws.write(row_num, col_num + 9, sucuk.upper(), font_style)
-        ws.write(row_num, col_num + 10, row.total_price, font_style)
+        ws.write(row_num, col_num + 10, order.total_price, font_style)
         ws.write(row_num, col_num + 11, "", font_style)
         ws.write(row_num, col_num + 12, notes.upper(), font_style)
                     
