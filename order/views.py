@@ -110,7 +110,7 @@ def export_orders_xls(request, date):
     font_style = xlwt.XFStyle()    
     font_style.font.bold = True
 
-    columns = ['Telefon',' Adres', 'Tavuk', 'Yumurta', 'Süt', 'Tereyağ', 'Peynir', 'Toplam Tutar', 'Ödeme Şekli', 'Notlar' ]
+    columns = ['Sıra No','Ad Soyad', 'Telefon',' Adres', 'Tavuk', 'Yumurta', 'Süt', 'Tereyağ', 'Peynir', 'Sucuk', 'Toplam Tutar', 'Ödeme Şekli', 'Notlar' ]
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
@@ -119,14 +119,14 @@ def export_orders_xls(request, date):
     rows = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
     for row in rows:
         row_num += 1
-        col_num = 0 
-        ws.write(row_num, col_num, row.customer.phone1, font_style)
-        ws.write(row_num, col_num + 1, row.customer.address.get_full_address(), font_style)
+        col_num = 0
+        ws.write(row_num, col_num, f"{row_num}", font_style)
+        ws.write(row_num, col_num + 1, f"{row.customer.first_name.upper()} {row.customer.last_name.upper()}", font_style)
+        ws.write(row_num, col_num + 2, row.customer.phone1, font_style)
+        ws.write(row_num, col_num + 3, row.customer.address.get_full_address().upper(), font_style)
 
-        tavuk, yumurta, süt, tereyağ, peynir = "", "", "", "", ""
-        
-        notes = row.notes
-        
+        tavuk, yumurta, süt, tereyağ, peynir, sucuk = "", "", "", "", "", ""
+               
         for order in row.items.all():
             if order.product.category.name == "Tavuk":
                 tavuk += (order.product.name + "\n") * int(order.quantity)
@@ -142,21 +142,24 @@ def export_orders_xls(request, date):
 
             elif order.product.category.name == "Peynir":
                 peynir += (order.product.name + "\n") * int(order.quantity)
-            
+
+            elif order.product.category.name == "Sucuk":
+                sucuk += f"{Decimal(order.quantity)} {order.product.distribution_unit}"
+
+        notes = row.notes
         if row.is_instagram:
             notes += "\nKullanıcı Adı:" + row.instagram_username
 
-        ws.write(row_num, col_num + 2, tavuk, font_style)
-        ws.write(row_num, col_num + 3, yumurta, font_style)
-        ws.write(row_num, col_num + 4, süt, font_style)
-        ws.write(row_num, col_num + 5, tereyağ, font_style)
-        ws.write(row_num, col_num + 6, peynir, font_style)
-        ws.write(row_num, col_num + 7, row.total_price, font_style)
-        ws.write(row_num, col_num + 8, "", font_style)
-        ws.write(row_num, col_num + 9, notes, font_style)
-        
-            
-            
+        ws.write(row_num, col_num + 4, tavuk.upper(), font_style)
+        ws.write(row_num, col_num + 5, yumurta.upper(), font_style)
+        ws.write(row_num, col_num + 6, süt.upper(), font_style)
+        ws.write(row_num, col_num + 7, tereyağ.upper(), font_style)
+        ws.write(row_num, col_num + 8, peynir.upper(), font_style)
+        ws.write(row_num, col_num + 9, sucuk.upper(), font_style)
+        ws.write(row_num, col_num + 10, row.total_price, font_style)
+        ws.write(row_num, col_num + 11, "", font_style)
+        ws.write(row_num, col_num + 12, notes.upper(), font_style)
+                    
     wb.save(response)
     return response
 
@@ -176,7 +179,7 @@ def order(request):
     context = dict()
 
     """"orders"""
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('-createt_at')
 
     number_of_order_items = []
 

@@ -50,6 +50,9 @@ class Neighborhood(models.Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -67,7 +70,7 @@ class Address(models.Model):
         return self.district.name + "-" + self.neighborhood.name + self.address_info
 
     def __str__(self):
-        return self.district.name + "-" + self.neighborhood.name + self.address_info
+        return f"{self.district.name.upper()} {self.neighborhood.name.upper()} {self.address_info.upper()}"
 
 
 class Customer(models.Model):
