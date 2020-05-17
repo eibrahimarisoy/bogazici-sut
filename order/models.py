@@ -160,6 +160,9 @@ class Order(models.Model):
             self.total_price = total_price
             self.save()
 
+    # class Meta:
+    #     ordering = ['customer__address__district__name']
+
 
 @receiver(post_save, sender=OrderItem)
 def order_item_receiver(sender, instance, created, *args, **kwargs):

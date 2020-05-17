@@ -41,6 +41,7 @@ class DeliverForm(forms.ModelForm):
         self.fields['delivery_date'].required = True
         self.fields['payment_method'].required = True
         self.fields['received_money'].required = True
+        self.fields['notes'].required = False
         self.fields['received_money'].label = "Tahsilat"
 
 

@@ -26,7 +26,7 @@ from dal import autocomplete
 def delivery_page(request):
     context = dict()
     today = datetime.date.today()
-    orders = Order.objects.filter(delivery_date=today)
+    orders = Order.objects.filter(delivery_date=today).order_by('customer__address__district__name')
     context['orders'] = orders
 
     return render(request, 'delivery_page.html', context)
@@ -116,7 +116,7 @@ def export_orders_xls(request, date):
         ws.write(row_num, col_num, columns[col_num], font_style)
 
     font_style = xlwt.XFStyle()
-    rows = Order.objects.filter(delivery_date=date)
+    rows = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
     for row in rows:
         row_num += 1
         col_num = 0 
@@ -127,18 +127,18 @@ def export_orders_xls(request, date):
         
         notes = row.notes
         
-        for order in row.orderitem_set.all():
+        for order in row.items.all():
             if order.product.category.name == "Tavuk":
                 tavuk += (order.product.name + "\n") * int(order.quantity)
             
             elif order.product.category.name == "Yumurta":
-                yumurta += (order.product.name + "\n") * int(order.quantity)
+                yumurta += str(Decimal(order.quantity))
             
             elif order.product.category.name == "Süt":
                 süt += (order.product.name + "\n") * int(order.quantity)
 
             elif order.product.category.name == "Tereyağ":
-                tereyağ += str(Decimal(order.quantity))
+                tereyağ += (order.product.name) + " " + str(Decimal(order.quantity))
 
             elif order.product.category.name == "Peynir":
                 peynir += (order.product.name + "\n") * int(order.quantity)
@@ -151,7 +151,7 @@ def export_orders_xls(request, date):
         ws.write(row_num, col_num + 4, süt, font_style)
         ws.write(row_num, col_num + 5, tereyağ, font_style)
         ws.write(row_num, col_num + 6, peynir, font_style)
-        ws.write(row_num, col_num + 7, row.total_amount, font_style)
+        ws.write(row_num, col_num + 7, row.total_price, font_style)
         ws.write(row_num, col_num + 8, "", font_style)
         ws.write(row_num, col_num + 9, notes, font_style)
         
@@ -446,7 +446,7 @@ def daily_order(request, date):
         number_of_order_items.append(f"{str(Decimal(total))} x {product.name}")
 
     context['product_numbers'] = number_of_order_items
-    orders = Order.objects.filter(delivery_date=date).order_by('-createt_at')
+    orders = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
     context['orders'] = orders
     context['exact_date'] = date
 
