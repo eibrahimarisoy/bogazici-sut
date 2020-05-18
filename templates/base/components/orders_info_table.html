@@ -28,7 +28,7 @@
 
                         {% endfor %}
                     </td>
-                    <td class="">{{order.total_price}} TL</td>
+                    <td class="">{{order.total_price|floatformat}} TL</td>
                     {% if order.is_delivered %}
                     <td>Sipariş Teslim Edildi</td>
 

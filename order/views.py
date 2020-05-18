@@ -392,15 +392,15 @@ def update_order(request, id):
 
     if request.method == "POST":
         order_form = OrderForm(request.POST, instance=order)
-        order_item_form_set = OrderItemFormSet(request.POST)
+        order_item_form_set = OrderItemFormSet(request.POST, request.FILES)
 
         if order_form.is_valid() and order_item_form_set.is_valid():
             order = order_form.save(commit=True)
             order_items = order_item_form_set.save(commit=False)
             for obj in order_item_form_set.deleted_objects:
                 obj.delete()
-            
             for item in order_items:
+                item.price = item.product.price
                 item.save()
                 order.items.add(item)
 
