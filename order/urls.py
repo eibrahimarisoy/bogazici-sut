@@ -4,7 +4,7 @@ from .views import index, add_customer, load_neighborhoodes, \
         add_district_and_neighborhood, add_product, products, \
         update_product, delete_product, update_customer, delete_customer, \
         delete_order, update_order, daily_order, search_status, CustomerAutocomplete, \
-        delivery_page, deliver_order
+        delivery_page, deliver_order, add_customer_from_file
 from django.conf.urls import url
 
 urlpatterns = [
@@ -26,8 +26,9 @@ urlpatterns = [
 
     path('export-orders-xls/<str:date>/', export_orders_xls, name="export_orders_xls"),
     path('add-district-and-neighborhood/', add_district_and_neighborhood, name="add_district_and_neighborhood"),
+    path('add-customer-from-file/', add_customer_from_file, name="add_customer_from_file"),
 
-        #ajax
+    # ajax
     # path('ajax/load-townships/', load_townships, name='ajax_load_townships'),  
     path('ajax/load-neihgborhoodes/', load_neighborhoodes, name='ajax_load_neighborhoodes'),
     path('search-status/', search_status, name="search_status"),

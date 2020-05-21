@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.db.models import Count
@@ -21,6 +23,7 @@ from xlrd import open_workbook
 from order.models import City, District
 
 from dal import autocomplete
+from string import capwords
 
 
 def delivery_page(request):
@@ -269,21 +272,21 @@ def load_neighborhoodes(request):
     print(neighborhoodes)
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
 
-
 def add_district_and_neighborhood(request):
-    file_name = os.path.join(settings.BASE_DIR, "mahalle.xls")
+    file_name = os.path.join(settings.BASE_DIR, "mahalle1.xls")
      
     file = open_workbook(file_name)
     sheet = file.sheet_by_index(0)
     col_num=0
     for row_num in range(sheet.nrows):
-        district_name = (sheet.cell(row_num, col_num).value.strip()).title()
-        neighborhood = (sheet.cell(row_num, col_num + 1).value.strip()).title()
+        district_name = (sheet.cell(row_num, col_num).value.strip())
+        neighborhood = (sheet.cell(row_num, col_num + 1).value.strip())
+
         city = City.objects.first()
         district, district_created = District.objects.get_or_create(city=city, name=district_name)
 
         Neighborhood.objects.create(district=district, name=neighborhood)
-        print(district, neighborhood)
+        print(district_name, neighborhood)
     return redirect('index')
 
 
@@ -483,3 +486,40 @@ def search_status(request):
             phones = []
 
         return render(request, 'ajax_search.html', {'phones':phones})
+
+
+def add_customer_from_file(request):
+    
+    file_name = os.path.join(settings.BASE_DIR, "../contacts_test.xls")
+    file = open_workbook(file_name)
+    sheet = file.sheet_by_index(0)
+    
+    col_num = 0
+    for row_num in range(1, sheet.nrows):
+        address = (sheet.cell(row_num, col_num).value.strip())
+        phone = (sheet.cell(row_num, col_num + 1).value.strip())
+
+        address_list = address.split()
+        district = address_list[0]
+        neighborhood = address_list[1]
+
+        try:
+            district_name = District.objects.get(name__icontains=district)
+        except District.DoesNotExist:
+            continue
+
+        try:
+            neighborhood_name = Neighborhood.objects.get(name__contains=neighborhood, district=district_name)
+        except Neighborhood.DoesNotExist:
+            continue
+
+        address_info = ""
+        for item in range(2, len(address_list)):
+            address_info += address_list[item] + " "
+
+        city = City.objects.first()
+        address = Address.objects.create(city=city, district=district_name, neighborhood=neighborhood_name, address_info=address_info) 
+
+        customer, created = Customer.objects.get_or_create(phone1=phone, address=address)
+
+    return redirect('index')

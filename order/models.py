@@ -67,7 +67,7 @@ class Address(models.Model):
     address_info = models.TextField(max_length=255, blank=True, null=True, verbose_name="Sokak-Apartman")
 
     def get_full_address(self):
-        return self.district.name + "-" + self.neighborhood.name + self.address_info
+        return self.district.name + "-" + self.neighborhood.name + "-" + self.address_info
 
     def __str__(self):
         return f"{self.district.name.upper()} {self.neighborhood.name.upper()} {self.address_info.upper()}"
