@@ -20,7 +20,7 @@ from decimal import Decimal
 from django.utils.dateparse import parse_date
 
 from xlrd import open_workbook
-from order.models import City, District
+from order.models import Category, City, District
 
 from dal import autocomplete
 from string import capwords
@@ -129,10 +129,35 @@ def export_orders_xls(request, date):
 
     font_style = xlwt.XFStyle()
     orders = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
+
+    categories = Category.objects.all()
+    products = Product.objects.all()
+    
+    i = 0
+    for category in categories:
+        number_of_order_items = []
+        col_num = 4
+        for product in products.filter(category=category):
+            total = 0
+            for item in product.orderitem_set.all().filter(order_item__delivery_date=date):
+                total += item.quantity
+
+            number_of_order_items.append(f"{str(Decimal(total))} x {product.name} \n")
+        ws.write(row_num + 2, col_num + i, number_of_order_items, font_style)
+        i += 1
+    
+    total_amount = 0
+    for order in orders:
+        total_amount += order.total_price
+        
+    ws.write(row_num +2, 10, total_amount, font_style)
+
+    row_num = 3
+    col_num = 0
     for order in orders:
         row_num += 1
         col_num = 0
-        ws.write(row_num, col_num, f"{row_num}", font_style)
+        ws.write(row_num, col_num, f"{row_num-3}", font_style)
         ws.write(row_num, col_num + 1, f"{order.customer.first_name.upper()} {order.customer.last_name.upper()}", font_style)
         ws.write(row_num, col_num + 2, order.customer.phone1, font_style)
         ws.write(row_num, col_num + 3, order.customer.address.get_full_address().upper(), font_style)
