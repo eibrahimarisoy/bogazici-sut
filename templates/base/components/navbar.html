@@ -11,7 +11,8 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'index' %}">Anasayfa <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item active dropdown">
+                {% if request.user.is_staff %}
+                   <li class="nav-item active dropdown">
                     <a href="" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Müşteri
@@ -45,18 +46,34 @@
                     </div>
                 </li>
                 <li class="nav-item active">
+                    <a id="" class="nav-link" href="">İstatistikler</a>
+                </li>
+                {% endif %}
+                
+                {% if request.user.is_authenticated %}
+                <li class="nav-item active">
                     <a id="" class="nav-link" href="{% url 'delivery_page' %}">Teslimat</a>
                 </li>
                 <li class="nav-item active">
-                    <a id="" class="nav-link" href="">İstatistikler</a>
+                    <a id="" class="nav-link" href="{% url 'logout' %}">Çıkış Yap</a>
                 </li>
+                {% endif %}
+
+                {% if not request.user.is_authenticated %}
+                <li class="nav-item active">
+                    <a id="" class="nav-link" href="{% url 'index' %}">Giriş Yap</a>
+                </li>
+                  
+                {% endif %}
+
+
                  
                 <!-- <li class="nav-item active dropdown">
                     <a href="{% url 'add_district_and_neighborhood' %}">mahalle ekle</a>
                 </li>  -->
-                <li class="nav-item active">
+                <!-- <li class="nav-item active">
                     <a class="nav-link" href="{% url 'add_customer_from_file' %}">Dosyadan Ekle</a>
-                </li>  
+                </li>   -->
             </ul>
         </div>
     </nav>

@@ -25,7 +25,14 @@ from order.models import City, District
 from dal import autocomplete
 from string import capwords
 
+from user.forms import LoginForm
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 
+
+@login_required
 def delivery_page(request):
     context = dict()
     today = datetime.date.today()
@@ -34,7 +41,7 @@ def delivery_page(request):
 
     return render(request, 'delivery_page.html', context)
 
-
+@login_required
 def deliver_order(request, id):
     context = dict()
         
@@ -84,6 +91,7 @@ def deliver_order(request, id):
     return render(request, 'deliver_order.html', context)
 
 
+
 class CustomerAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         # Don't forget to filter out results depending on the visitor !
@@ -96,6 +104,7 @@ class CustomerAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
+@staff_member_required
 def export_orders_xls(request, date):
     if parse_date(date) is None:
         numbers = date.split('-')
@@ -169,15 +178,40 @@ def export_orders_xls(request, date):
 
 def index(request):
     context = dict()
+    login_form = LoginForm(request.POST or None)
+    context['login_form'] = login_form
+
+    if login_form.is_valid():
+        email = login_form.cleaned_data.get("email")
+        password = login_form.cleaned_data.get("password")
+
+        # if username is not exists throw and error to user
+        try:
+            username = User.objects.get(email=email).username
+        except User.DoesNotExist:
+            messages.info(request, "Kullanıcı Adı Yanlış.")
+            return render(request, "index.html", context)
+
+        # check username and password are correct
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            messages.info(request, "Kullanıcı Adı veya Parolanız Yanlış")
+            return render(request, "index.html", context)
+        else:
+            messages.success(request, "Başarıyla Giriş Yaptınız")
+            # start new session for user
+            login(request, user)
+            return redirect("index")
+
     return render(request, 'index.html', context)
 
-
+@staff_member_required
 def customer(request):
     context = dict()
     context['customers'] = Customer.objects.all()
     return render(request, 'customer.html', context)
 
-
+@staff_member_required
 def order(request):
     context = dict()
 
@@ -199,7 +233,7 @@ def order(request):
     context['orders'] = Order.objects.all().order_by('-createt_at')
     return render(request, 'order.html', context)
 
-    
+@staff_member_required
 def add_customer(request):
     context = dict()
     address_form = AddressForm(request.POST or None)
@@ -224,7 +258,7 @@ def add_customer(request):
     context['customer_form'] = customer_form
     return render(request, 'add_customer.html', context)
 
-
+@staff_member_required
 def add_order(request):
     context = dict()
     order_form = OrderForm()
@@ -263,7 +297,7 @@ def add_order(request):
 
     return render(request, 'add_order.html', context)
 
-
+@staff_member_required
 def load_neighborhoodes(request):
     district_id = request.GET.get('district')
     
@@ -272,6 +306,7 @@ def load_neighborhoodes(request):
     print(neighborhoodes)
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
 
+@staff_member_required
 def add_district_and_neighborhood(request):
     file_name = os.path.join(settings.BASE_DIR, "mahalle1.xls")
      
@@ -289,7 +324,7 @@ def add_district_and_neighborhood(request):
         print(district_name, neighborhood)
     return redirect('index')
 
-
+@staff_member_required
 def add_product(request):
     context = dict()
     product_form = ProductForm(request.POST or None)
@@ -305,7 +340,7 @@ def add_product(request):
     context['product_form'] = product_form
     return render(request, 'add_product.html', context)
 
-
+@staff_member_required
 def products(request):
     context = dict()
     products = Product.objects.all()
@@ -314,6 +349,7 @@ def products(request):
     return render(request, 'product.html', context)
 
 
+@staff_member_required
 def update_product(request, id):
     context = dict()
     product = get_object_or_404(Product, id=id)
@@ -332,6 +368,7 @@ def update_product(request, id):
     return render(request, 'add_product.html', context)
 
 
+@staff_member_required
 def delete_product(request, id):
     product = get_object_or_404(Product, id=id)
     product.delete()
@@ -339,6 +376,7 @@ def delete_product(request, id):
     return redirect('products')
 
 
+@staff_member_required
 def update_customer(request, id):
     context = dict()
     customer = get_object_or_404(Customer, id=id)
@@ -362,6 +400,7 @@ def update_customer(request, id):
     return render(request, 'add_customer.html', context)
 
 
+@staff_member_required
 def delete_customer(request, id):
     customer = get_object_or_404(Customer, id=id)
     customer.delete()
@@ -369,6 +408,7 @@ def delete_customer(request, id):
     return redirect('customer')
 
 
+@staff_member_required
 def delete_order(request, id):
     order = get_object_or_404(Order, id=id)
     order.delete()
@@ -376,6 +416,7 @@ def delete_order(request, id):
     return redirect('order')
 
 
+@staff_member_required
 def update_order(request, id):
     context = dict()
     order = get_object_or_404(Order, id=id)
@@ -423,6 +464,7 @@ def update_order(request, id):
     return render(request, 'add_order.html', context)
 
 
+@staff_member_required
 def daily_order(request, date):
     context = dict()
     if parse_date(date) is None:
@@ -472,7 +514,7 @@ def daily_order(request, date):
             
     return render(request, 'daily_order.html', context)
 
-
+@staff_member_required
 def search_status(request):
 
     if request.method == "GET":
@@ -487,7 +529,7 @@ def search_status(request):
 
         return render(request, 'ajax_search.html', {'phones':phones})
 
-
+@staff_member_required
 def add_customer_from_file(request):
     
     file_name = os.path.join(settings.BASE_DIR, "../contacts_test.xls")
