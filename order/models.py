@@ -75,13 +75,15 @@ class Address(models.Model):
 class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
-    phone1 = models.CharField(max_length=50, verbose_name="Telefon1")
+    phone1 = models.CharField(max_length=50, verbose_name="Telefon1", unique=True)
     phone2 = models.CharField(max_length=50, blank=True, null=True, verbose_name="Telefon2")
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
 
     def __str__(self):
         return f"{self.phone1}"
 
+    class Meta:
+        ordering = ['phone1']
 
 class Category(models.Model):
     name = models.CharField(max_length=50,  verbose_name="Kategori Adı")

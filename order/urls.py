@@ -4,7 +4,8 @@ from .views import index, add_customer, load_neighborhoodes, \
         add_district_and_neighborhood, add_product, products, \
         update_product, delete_product, update_customer, delete_customer, \
         delete_order, update_order, daily_order, search_status, CustomerAutocomplete, \
-        delivery_page, deliver_order, add_customer_from_file, download_customer_vcf
+        delivery_page, deliver_order, add_customer_from_file, download_customer_vcf, \
+        number_of_customer_orders
 from django.conf.urls import url
 
 urlpatterns = [
@@ -14,6 +15,7 @@ urlpatterns = [
     path('update-customer/<int:id>/', update_customer, name="update_customer"),
     path('delete-customer/<int:id>/', delete_customer, name="delete_customer"),
     path('download-customer-vcf/<int:id>', download_customer_vcf, name="download_customer_vcf"),
+    path('number-of-customer-orders/', number_of_customer_orders, name="number_of_customer_orders"),
 
     path('add-order/', add_order, name="add_order"),
     path('order/', order, name="order"),

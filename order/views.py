@@ -31,6 +31,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 import vobject
+from django.db.models.functions import Length
 
 
 @login_required
@@ -595,6 +596,7 @@ def add_customer_from_file(request):
     return redirect('index')
 
 
+@staff_member_required
 def download_customer_vcf(request, id):
     customer = get_object_or_404(Customer, id=id)
     v = vobject.vCard()
@@ -608,3 +610,13 @@ def download_customer_vcf(request, id):
     response['Content-Disposition'] = f"attachment; filename={customer.phone1}.vcf"
     response.write(v.serialize())
     return response
+
+
+@staff_member_required
+def number_of_customer_orders(request):
+    context = dict()
+    customers = Customer.objects.exclude(order=None).annotate(num_orders=Count('order')) \
+                .order_by('num_orders')
+
+    context['customers'] = customers
+    return render(request, 'number_of_customer_orders.html', context)
