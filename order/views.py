@@ -330,7 +330,6 @@ def load_neighborhoodes(request):
     
     neighborhoodes = Neighborhood.objects.filter(
         district_id=district_id).order_by('name')
-    print(neighborhoodes)
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
 
 @staff_member_required
