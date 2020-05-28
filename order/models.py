@@ -72,7 +72,6 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.district.name.upper()} {self.neighborhood.name.upper()} {self.address_info.upper()}"
 
-
 class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)

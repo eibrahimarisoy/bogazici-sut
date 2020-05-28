@@ -26,8 +26,14 @@
                 <td class="col-lg-2">{{customer.phone1}}</td>
                 <td class="col-lg-4">{{customer.address}}</td>
                 <td class="col-lg-3">
-                    <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
-                    <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Müşteri Sil</a>
+                    <div class="row justify-content-center">
+                        
+                        <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
+                        <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Müşteri Sil</a>
+                    </div>
+                    <div class="row justify-content-center">
+                        <a href="{% url 'download_customer_vcf' customer.id %}" class="btn btn-success">VCF Dosyası</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
