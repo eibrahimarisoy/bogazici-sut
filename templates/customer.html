@@ -27,7 +27,7 @@
                 <td class="col-lg-4">{{customer.address}}</td>
                 <td class="col-lg-3">
                     <div class="row justify-content-center">
-                        
+
                         <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
                         <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Müşteri Sil</a>
                     </div>
@@ -39,5 +39,34 @@
             {% endfor %}
         </tbody>
     </table>
+    {% if customers.has_other_pages %}
+    <div class="row justify-content-center">
+        <div class="col-md-auto">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    {% if customers.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ customers.previous_page_number }}">&laquo;</a>
+                    </li>
+                    {% else %}
+                    <li class="disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+                    {% for i in customers.paginator.page_range %}
+                    {% if customers.number == i %}
+                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                    {% else %}
+                    <li><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    {% if customers.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ customers.next_page_number }}">&raquo;</a>
+                    </li>
+                    {% else %}
+                    <li class="disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock content %}

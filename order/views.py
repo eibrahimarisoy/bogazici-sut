@@ -1,37 +1,36 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from django.db.models import Count
-from django.http import HttpResponse
-
-from .models import Address, Customer, Neighborhood, Order, OrderItem, Product, PaymentMethod
-from .forms import AddressForm, CustomerForm, OrderForm, OrderItemForm, ProductForm, DeliverForm, BaseModelFormSet
-
-from django.forms.models import inlineformset_factory
-from django.forms import modelformset_factory, formset_factory
-
-from django.conf import settings
-
-import os
-import xlwt
 import datetime
+import os
 from decimal import Decimal
-from django.utils.dateparse import parse_date
-
-from xlrd import open_workbook
-from order.models import Category, City, District
-
-from dal import autocomplete
 from string import capwords
 
-from user.forms import LoginForm
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
 import vobject
+import xlwt
+from dal import autocomplete
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Count
 from django.db.models.functions import Length
+from django.forms import formset_factory, modelformset_factory
+from django.forms.models import inlineformset_factory
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.dateparse import parse_date
+from xlrd import open_workbook
+
+from order.models import Category, City, District
+from user.forms import LoginForm
+
+from .forms import (AddressForm, BaseModelFormSet, CustomerForm, DeliverForm,
+                    OrderForm, OrderItemForm, ProductForm)
+from .models import (Address, Customer, Neighborhood, Order, OrderItem,
+                     PaymentMethod, Product)
 
 
 @login_required
@@ -236,7 +235,19 @@ def index(request):
 @staff_member_required
 def customer(request):
     context = dict()
-    context['customers'] = Customer.objects.all().order_by('-pk')
+    customers = Customer.objects.all().order_by('-pk')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(customers, 30)
+
+    try:
+        customers = paginator.page(page)
+    except PageNotAnInteger:
+        customers = paginator.page(1)
+    except EmptyPage:
+        customers = paginator.page(paginator.num_pages)
+    context['customers'] = customers
+
     return render(request, 'customer.html', context)
 
 @staff_member_required
