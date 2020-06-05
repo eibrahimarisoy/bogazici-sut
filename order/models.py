@@ -21,13 +21,6 @@ DAYS = [
 ]
 
 
-class PaymentMethod(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
 class City(models.Model):
     name = models.CharField(max_length=30)
 
@@ -129,13 +122,16 @@ class OrderItem(models.Model):
 
 
 class Order(models.Model):
+    class PaymentMethodEnum(models.IntegerChoices):
+        CASH = 1, 'Nakit'
+        EFT = 2, 'EFT'
+
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
     items = models.ManyToManyField(OrderItem, verbose_name="Ürünler", related_name='order_item')
 
     delivery_date = models.DateField(blank=True, null=True, verbose_name="Teslimat Tarihi")
-    payment_method = models.ForeignKey(
-        PaymentMethod,
-        on_delete=models.CASCADE,
+    payment_method = models.PositiveSmallIntegerField(
+        choices=PaymentMethodEnum.choices,
         blank=True,
         null=True,
         verbose_name="Ödeme Şekli"

@@ -29,8 +29,7 @@ from user.forms import LoginForm
 
 from .forms import (AddressForm, BaseModelFormSet, CustomerForm, DeliverForm,
                     OrderForm, OrderItemForm, ProductForm)
-from .models import (Address, Customer, Neighborhood, Order, OrderItem,
-                     PaymentMethod, Product)
+from .models import (Address, Customer, Neighborhood, Order, OrderItem, Product)
 
 
 @login_required
