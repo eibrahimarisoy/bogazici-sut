@@ -298,10 +298,13 @@ def add_customer(request):
     return render(request, 'add_customer.html', context)
 
 @staff_member_required
-def add_order(request):
+def add_order(request, id=None):
     context = dict()
     order_form = OrderForm()
-
+    if id is not None:
+        print("*****")
+        order_form = OrderForm(initial={'customer' :Customer.objects.get(id=id)})
+    
     OrderItemFormSet = modelformset_factory(
         OrderItem,
         form=OrderItemForm,
