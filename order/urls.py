@@ -5,7 +5,7 @@ from .views import index, add_customer, load_neighborhoodes, \
         update_product, delete_product, update_customer, delete_customer, \
         delete_order, update_order, daily_order, search_status, CustomerAutocomplete, \
         delivery_page, deliver_order, add_customer_from_file, download_customer_vcf, \
-        number_of_customer_orders, payment_method_set
+        number_of_customer_orders, payment_method_set, unpaid_orders, pay_with_eft
 from django.conf.urls import url
 
 urlpatterns = [
@@ -23,6 +23,8 @@ urlpatterns = [
     path('delete-order/<int:id>/', delete_order, name="delete_order"),
     path('update-order/<int:id>/', update_order, name="update_order"),
     path('payment-method-set/<int:id>/<str:method>/', payment_method_set, name="payment_method_set"),
+    path('unpaid-orders/', unpaid_orders, name="unpaid_orders"),
+    path('pay-with-eft/<int:id>/', pay_with_eft, name="pay_with_eft"),
 
 
     path('add-product/', add_product, name="add_product"),

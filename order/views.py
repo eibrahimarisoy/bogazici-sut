@@ -653,8 +653,28 @@ def payment_method_set(request, id, method):
             order.payment_method = 2
             order.remaining_debt = order.total_price
             order.is_delivered = True
+            order.is_paid = False
 
         order.save()
     except:
         pass
     return redirect('delivery_page')
+
+
+def unpaid_orders(request):
+    context = dict()
+    unpaid_orders = Order.objects.filter(
+        is_paid=False,
+        is_delivered=True,
+    )
+    context['unpaid_orders'] = unpaid_orders
+    return render(request, 'unpaid_orders.html', context)
+
+
+def pay_with_eft(request, id):
+    order = get_object_or_404(Order, id=id, payment_method=2)
+    order.remaining_debt = 0
+    order.is_paid = True
+    order.save()
+    return redirect('unpaid_orders')
+
