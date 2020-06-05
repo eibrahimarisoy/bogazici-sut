@@ -31,7 +31,7 @@
                         <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
                     </div>
                     <div class="row justify-content-center">
-                        <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Müşteri Sil</a>
+                        <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger" onclick="return confirm('{{ customer.phone1 }} numaralı müşteriyi silmek istediğinize emin misiniz?');">Müşteri Sil</a>
                     </div>
                     <div class="row justify-content-center">
                         <a href="{% url 'add_order' customer.id %}" class="btn btn-dark">Sipariş Ekle</a>

@@ -35,7 +35,7 @@
                     {% else %}
                     <td>
                         <a href="{% url 'update_order' order.id %}" class="btn btn-info">Güncelle</a>
-                        <a href="{% url 'delete_order' order.id %} " class="btn btn-danger">Sipariş Sil</a>
+                        <a href="{% url 'delete_order' order.id %} " class="btn btn-danger" onclick="return confirm('{{ order.customer.phone1 }} müşterisine ait siparişi silmek istediğinize emin misiniz?');">Sipariş Sil</a>
                     </td>
                     {% endif %}
 
