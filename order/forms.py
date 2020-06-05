@@ -3,12 +3,15 @@ from django.forms import BaseModelFormSet
 from .models import Address, Customer, OrderItem, Order, Product
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms.fields import DateField
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Column, HTML, Layout, Reset, Row, Submit
 import datetime
 from tempus_dominus.widgets import DatePicker
 
 from dal import autocomplete
+from django.forms.widgets import SelectDateWidget
+from django.contrib.admin import widgets
 
 
 class ProductForm(forms.ModelForm):
@@ -59,25 +62,11 @@ class OrderForm(forms.ModelForm):
             attrs={
                 # Set some placeholder
                 'data-placeholder': 'Müşteri Telefon No...',
-                # Only trigger autocompletion after 3 characters have been typed
-                # 'class': 'col',
-                # 'style': {'height':'38px'},
-                # 'data-minimum-input-length': 3,
                 },
     ))
 
     instagram_username= forms.CharField(label='', help_text="Kullanıcı Adı")
-    delivery_date = forms.DateField(
-        label="Teslim Tarihi",
-        widget=DatePicker(options={
-            'minDate': '2020-01-01',
-            'maxDate': '2022-01-01',
-            'format': 'DD/MM/YYYY',
-            'locale': "tr",
-            'localize': True
-        }),
-        initial=datetime.date.today()
-    )
+    delivery_date = forms.DateField(widget=AdminDateWidget(), initial=datetime.date.today())
 
     notes = forms.CharField(label="Notlar")
     

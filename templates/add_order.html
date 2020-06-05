@@ -3,7 +3,6 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-{% load widget_tweaks %}
 
 
 
@@ -30,7 +29,16 @@
 
 <div class="container">
     <form method="post" enctype="multipart/form-data" novalidate>
+        {% block extrahead %}{{ block.super }}
+
+        <script type="text/javascript" src="/admin/jsi18n/"></script>
+        <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+        
         {{ order_form.media }}
+        
+        <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
+        {% endblock extrahead %}
+
         {% csrf_token %}
         <div class="row justify-content-md-center">
             <div class="col-md-6">
@@ -42,7 +50,7 @@
                 {{ order_form.notes | as_crispy_field }}
             </div>
             <div class="col-lg-3">
-                {{ order_form.delivery_date |as_crispy_field }}
+                {{ order_form.delivery_date | as_crispy_field  }}
             </div>
         </div>
         <div class="row justify-content-center">
@@ -83,13 +91,10 @@
 </div>
 
 <script type="text/javascript">
-$(document).ready(function()
-{
-    $('.select2-selection').attr('style', 'height:38px')
-    $('.select2-selection').addClass('col')
-})
-
-
+    $(document).ready(function () {
+        $('.select2-selection').attr('style', 'height:38px')
+        $('.select2-selection__rendered').addClass('col')
+    })
 </script>
 
 
@@ -110,7 +115,6 @@ $(document).ready(function()
 </script>
 
 <script type="text/javascript">
-
     var condition3 = $('#7')
     var condition4 = $('#8')
     var condition5 = $('#9')
@@ -134,28 +138,5 @@ $(document).ready(function()
 </script>
 
 
-
-<script type="text/javascript">
-    $(function () {
-
-        $('#id_search').keyup(function () {
-
-            $.ajax({
-                type: "GET",
-                url: "/search_status/",
-                data: {
-                    'search_text': $('#id_search').val(),
-                    'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()
-                },
-                success: searchSuccess,
-                dataType: 'html'
-            });
-        });
-    });
-
-    function searchSuccess(data, textStatus, jqXHR) {
-        $('#result').html(data)
-    }
-</script>
 
 {% endblock content %}
