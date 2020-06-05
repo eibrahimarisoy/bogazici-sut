@@ -96,6 +96,7 @@ class Product(models.Model):
         choices=DISTRIBUTION_UNITS,  verbose_name="Dağıtım Birimi"
         )
     price = models.FloatField(verbose_name="Fiyatı")
+    purchase_price = models.FloatField(verbose_name="Alış Fiyatı", blank=True, null=True)
 
     createt_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -139,7 +140,9 @@ class Order(models.Model):
     total_price = models.FloatField(default=0, verbose_name="Toplam Tutar")
     notes = models.CharField(max_length=50, default="", verbose_name="Notlar")
     is_delivered = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False)
     received_money = models.FloatField(default=0.0)
+    remaining_debt = models.FloatField(default=0.0)
 
     is_instagram = models.BooleanField(default=False, verbose_name="İnstagram?")
     instagram_username = models.CharField(max_length=50, null=True, blank=True, help_text="Kullanıcı Adı")

@@ -29,7 +29,7 @@ from user.forms import LoginForm
 
 from .forms import (AddressForm, BaseModelFormSet, CustomerForm, DeliverForm,
                     OrderForm, OrderItemForm, ProductForm)
-from .models import (Address, Customer, Neighborhood, Order, OrderItem, Product)
+from .models import Address, Customer, Neighborhood, Order, OrderItem, Product
 
 
 @login_required
@@ -75,6 +75,10 @@ def deliver_order(request, id):
 
                 order.total_price_update()
                 order.is_delivered = True
+                if order.payment_method == 1:  # check payment method for cash
+                    order.is_paid = True
+                else:
+                    order.is_paid = False
                 order.save()
                 messages.success(request, 'Sipariş Bilgileri Başarıyla Güncellendi.')
                 return redirect('delivery_page')
@@ -538,17 +542,17 @@ def daily_order(request, date):
     context['exact_date'] = date
 
     """payments"""
-    pay_at_door = 0
+    cash = 0
     eft = 0
 
     for order in orders:
         
-        if order.payment_method_id == 2:
-            pay_at_door += order.received_money
-        elif order.payment_method_id == 1: 
+        if order.payment_method == 1: # cash
+            cash += order.received_money
+        elif order.payment_method == 2: # eft
             eft += order.total_price
     
-    context['pay_at_door'] = pay_at_door
+    context['cash'] = cash
     context['eft'] = eft
             
     return render(request, 'daily_order.html', context)
@@ -632,3 +636,22 @@ def number_of_customer_orders(request):
 
     context['customers'] = customers
     return render(request, 'number_of_customer_orders.html', context)
+
+@staff_member_required
+def payment_method_set(request, id, method):
+    order = get_object_or_404(Order, id=id)
+    
+    try:
+        if method == "Nakit":
+            order.payment_method = 1
+            order.received_money = order.total_price
+            order.is_delivered = True
+            order.is_paid = True
+        if method == "EFT":
+            order.payment_method = 2
+            order.is_delivered = True
+
+        order.save()
+    except:
+        pass
+    return redirect('delivery_page')

@@ -21,7 +21,7 @@
             <span>EFT: {{ eft }} TL</span>
         </div>
         <div class="col-3 border rounded">
-            <span>Kapıda Ödeme: {{ pay_at_door }} TL</span>
+            <span>Nakit: {{ cash }} TL</span>
         </div>
         <div class="col-3">
             <a id="export" style="color:green" href="{% url 'export_orders_xls' exact_date %}">
