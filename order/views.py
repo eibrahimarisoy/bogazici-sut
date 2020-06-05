@@ -79,6 +79,7 @@ def deliver_order(request, id):
                     order.is_paid = True
                 else:
                     order.is_paid = False
+                    order.remaining_debt = order.total_price - order.received_money
                 order.save()
                 messages.success(request, 'Sipariş Bilgileri Başarıyla Güncellendi.')
                 return redirect('delivery_page')
@@ -646,9 +647,11 @@ def payment_method_set(request, id, method):
             order.payment_method = 1
             order.received_money = order.total_price
             order.is_delivered = True
+            order.remaining_debt = 0
             order.is_paid = True
         if method == "EFT":
             order.payment_method = 2
+            order.remaining_debt = order.total_price
             order.is_delivered = True
 
         order.save()
