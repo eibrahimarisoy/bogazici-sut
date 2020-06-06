@@ -680,6 +680,7 @@ def pay_with_eft(request, id):
     order.save()
     return redirect('unpaid_orders')
 
+
 @staff_member_required
 def order_calendar(request):
     context = dict()
@@ -688,11 +689,35 @@ def order_calendar(request):
     
     if order_calendar_form.is_valid():
         date = order_calendar_form.cleaned_data.get('date')
-        
-    
+           
     orders = Order.objects.filter(delivery_date=date)
-
 
     context['orders'] = orders
     context['order_calendar_form'] = order_calendar_form
     return render(request, 'order_calendar.html', context)
+
+
+@staff_member_required
+def daily_revenue(request):
+    context = dict()
+    order_calendar_form = OrderCalendarForm(request.GET or None)
+    date = datetime.date.today()
+    
+    if order_calendar_form.is_valid():
+        date = order_calendar_form.cleaned_data.get('date')
+
+    daily_orders = Order.objects.filter(delivery_date=date)
+    
+    received_money = 0
+    not_received_money = 0
+    
+    for item in daily_orders:
+        received_money += item.received_money
+        not_received_money += item.remaining_debt
+        
+
+    context['received_money'] = received_money
+    context['not_received_money'] = not_received_money
+    context['order_calendar_form'] = order_calendar_form
+    
+    return render(request, 'daily_revenue.html', context)

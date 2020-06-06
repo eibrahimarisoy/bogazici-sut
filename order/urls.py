@@ -1,13 +1,15 @@
-from django.urls import path, include
-from .views import index, add_customer, load_neighborhoodes, \
-        customer, add_order, order, export_orders_xls, \
-        add_district_and_neighborhood, add_product, products, \
-        update_product, delete_product, update_customer, delete_customer, \
-        delete_order, update_order, daily_order, search_status, CustomerAutocomplete, \
-        delivery_page, deliver_order, add_customer_from_file, download_customer_vcf, \
-        number_of_customer_orders, payment_method_set, unpaid_orders, pay_with_eft, \
-        order_calendar
 from django.conf.urls import url
+from django.urls import include, path
+
+from .views import (CustomerAutocomplete, add_customer, add_customer_from_file,
+                    add_district_and_neighborhood, add_order, add_product,
+                    customer, daily_order, daily_revenue, delete_customer,
+                    delete_order, delete_product, deliver_order, delivery_page,
+                    download_customer_vcf, export_orders_xls, index,
+                    load_neighborhoodes, number_of_customer_orders, order,
+                    order_calendar, pay_with_eft, payment_method_set, products,
+                    search_status, unpaid_orders, update_customer,
+                    update_order, update_product)
 
 urlpatterns = [
     path('', index, name="index"),
@@ -27,7 +29,7 @@ urlpatterns = [
     path('unpaid-orders/', unpaid_orders, name="unpaid_orders"),
     path('pay-with-eft/<int:id>/', pay_with_eft, name="pay_with_eft"),
     path('order-calendar/', order_calendar, name="order_calendar"),
-
+    path('daily-revenue/', daily_revenue, name="daily_revenue"),
 
     path('add-product/', add_product, name="add_product"),
     path('products/', products, name="products"),

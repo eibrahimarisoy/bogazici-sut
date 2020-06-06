@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+{% block content %}
+{% load l10n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<div class="container mt-2 mb-2">
+    <div class="d-flex justify-content-center">
+        <h2>Günlük Hasılat Bilgi Ekranı</h2>
+    </div>
+    <br>
+    <form method="get" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% block extrahead %}
+        {{ block.super }}
+
+        <script type="text/javascript" src="/admin/jsi18n/"></script>
+        <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+
+        {{ order_calendar_form.media }}
+
+        <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
+        {% endblock extrahead %}
+        <div class="row justify-content-center">
+            <div class="col-3">
+                {{ order_calendar_form | crispy }}
+
+            </div>
+            <div class="col-3">
+                <button type="submit" class="btn btn-primary btn-block btn-md">Siparişleri Göster</button>
+
+            </div>
+
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-3">
+{{ received_money }}
+        </div>
+        <div class="col-3">
+{{ not_received_money }}
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock content %}
