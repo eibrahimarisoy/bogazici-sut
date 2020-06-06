@@ -28,7 +28,7 @@ from order.models import Category, City, District
 from user.forms import LoginForm
 
 from .forms import (AddressForm, BaseModelFormSet, CustomerForm, DeliverForm,
-                    OrderForm, OrderItemForm, ProductForm)
+                    OrderForm, OrderItemForm, ProductForm, OrderCalendarForm)
 from .models import Address, Customer, Neighborhood, Order, OrderItem, Product
 
 
@@ -661,6 +661,7 @@ def payment_method_set(request, id, method):
     return redirect('delivery_page')
 
 
+@staff_member_required
 def unpaid_orders(request):
     context = dict()
     unpaid_orders = Order.objects.filter(
@@ -671,6 +672,7 @@ def unpaid_orders(request):
     return render(request, 'unpaid_orders.html', context)
 
 
+@staff_member_required
 def pay_with_eft(request, id):
     order = get_object_or_404(Order, id=id, payment_method=2)
     order.remaining_debt = 0
@@ -678,3 +680,19 @@ def pay_with_eft(request, id):
     order.save()
     return redirect('unpaid_orders')
 
+@staff_member_required
+def order_calendar(request):
+    context = dict()
+    order_calendar_form = OrderCalendarForm(request.GET or None)
+    date = datetime.date.today()
+    
+    if order_calendar_form.is_valid():
+        date = order_calendar_form.cleaned_data.get('date')
+        
+    
+    orders = Order.objects.filter(delivery_date=date)
+
+
+    context['orders'] = orders
+    context['order_calendar_form'] = order_calendar_form
+    return render(request, 'order_calendar.html', context)

@@ -97,3 +97,6 @@ class BaseModelFormSet(BaseModelFormSet):
 
         super().__init__(*args, **kwargs)
         self.queryset = Product.objects.none()
+
+class OrderCalendarForm(forms.Form):
+    date = forms.DateField(widget=AdminDateWidget(), initial=datetime.date.today(), label="")
