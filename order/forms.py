@@ -64,9 +64,8 @@ class OrderForm(forms.ModelForm):
                 'data-placeholder': 'Müşteri Telefon No...',
                 },
     ))
-
     instagram_username= forms.CharField(label='', help_text="Kullanıcı Adı")
-    delivery_date = forms.DateField(widget=AdminDateWidget(), initial=datetime.date.today())
+    delivery_date = forms.DateField(widget=AdminDateWidget())
 
     notes = forms.CharField(label="Notlar")
     
@@ -93,8 +92,6 @@ class OrderItemForm(forms.ModelForm):
 
 class BaseModelFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
-        # self.instance = kwargs.pop('instance')
-
         super().__init__(*args, **kwargs)
         self.queryset = Product.objects.none()
 

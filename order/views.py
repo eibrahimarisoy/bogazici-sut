@@ -716,8 +716,11 @@ def daily_revenue(request):
         not_received_money += item.remaining_debt
         
 
+    # getting unpaid orders
+    unpaid_orders = daily_orders.filter(is_paid=False)
+
+    context['unpaid_orders'] = unpaid_orders
     context['received_money'] = received_money
     context['not_received_money'] = not_received_money
     context['order_calendar_form'] = order_calendar_form
-    
     return render(request, 'daily_revenue.html', context)

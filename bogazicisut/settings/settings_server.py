@@ -4,8 +4,8 @@ from .settings_base import BASE_DIR, ALLOWED_HOSTS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
+        'NAME': 'bogazici_sut',
+        'USER': 'bogazici_sut',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '5432',
