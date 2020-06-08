@@ -97,3 +97,6 @@ class BaseModelFormSet(BaseModelFormSet):
 
 class OrderCalendarForm(forms.Form):
     date = forms.DateField(widget=AdminDateWidget(), initial=datetime.date.today(), label="")
+
+# class ReportCalendar(forms.Form):
+#     date = forms.DateField(widget=SplitDateWidget())

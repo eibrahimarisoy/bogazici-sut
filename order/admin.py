@@ -33,6 +33,15 @@ class NeighborhoodAdmin(admin.ModelAdmin):
 #     inlines = [ProductsInline,]
 #     filter_horizontal = ('products',)
 
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'customer',
+        'delivery_date',
+    )
+    list_filter = ('delivery_date',)
+    
+
 admin.site.register(City)
 admin.site.register(Neighborhood, NeighborhoodAdmin)
 admin.site.register(District, DistrictAdmin)
@@ -40,5 +49,5 @@ admin.site.register(Address)
 admin.site.register(Customer)
 admin.site.register(Category)
 admin.site.register(Product)
-admin.site.register(Order)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem)

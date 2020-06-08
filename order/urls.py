@@ -9,7 +9,7 @@ from .views import (CustomerAutocomplete, add_customer, add_customer_from_file,
                     load_neighborhoodes, number_of_customer_orders, order,
                     order_calendar, pay_with_eft, payment_method_set, products,
                     search_status, unpaid_orders, update_customer,
-                    update_order, update_product)
+                    update_order, update_product, order_report)
 
 urlpatterns = [
     path('', index, name="index"),
@@ -30,6 +30,7 @@ urlpatterns = [
     path('pay-with-eft/<int:id>/', pay_with_eft, name="pay_with_eft"),
     path('order-calendar/', order_calendar, name="order_calendar"),
     path('daily-revenue/', daily_revenue, name="daily_revenue"),
+    path('order-report/', order_report, name="order_report"),
 
     path('add-product/', add_product, name="add_product"),
     path('products/', products, name="products"),
