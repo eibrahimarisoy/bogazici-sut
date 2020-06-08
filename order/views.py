@@ -692,6 +692,19 @@ def order_calendar(request):
            
     orders = Order.objects.filter(delivery_date=date)
 
+    """"orders"""
+    products = Product.objects.all()
+    number_of_order_items = []
+
+    for product in products:
+        total = 0
+        for item in product.orderitem_set.all().filter(order_item__delivery_date=date):
+            total += item.quantity
+
+        number_of_order_items.append(f"{str(Decimal(total))} x {product.name}")
+
+    context['product_numbers'] = number_of_order_items
+
     context['orders'] = orders
     context['order_calendar_form'] = order_calendar_form
     return render(request, 'order_calendar.html', context)
