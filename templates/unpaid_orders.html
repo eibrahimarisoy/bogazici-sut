@@ -19,6 +19,7 @@
                 <th scope="col">Telefon</th>
                 <th scope="col">Adres</th>
                 <th scope="col">Toplam Tutar</th>
+                <th scope="col">Alınacak Ödeme</th>
                 <th scope="col">Düzenle</th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@
                 <td>{{order.customer.phone1}}</td>
                 <td style="width:25%">{{order.customer.address}}</td>
                 <td class="">{{order.total_price|floatformat}} TL</td>
+                <td class="">{{order.remaining_debt}} TL</td>
 
                 <td>
                     <a href="{% url 'pay_with_eft' order.id %} " class="btn btn-danger"

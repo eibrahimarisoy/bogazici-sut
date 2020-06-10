@@ -79,7 +79,7 @@ def deliver_order(request, id):
                 order.is_delivered = True
                 if order.payment_method == 1:  # check payment method for cash
                     order.is_paid = True
-                else:
+                elif order.payment_method == 2:
                     order.is_paid = False
                     order.remaining_debt = order.total_price - order.received_money
                 order.save()
@@ -670,7 +670,7 @@ def unpaid_orders(request):
 @staff_member_required
 def pay_with_eft(request, id):
     order = get_object_or_404(Order, id=id, payment_method=2)
-    order.received_money = order.remaining_debt
+    order.received_money = order.remaining_debt + order.received_money
     order.remaining_debt = 0
     order.is_paid = True
     order.save()
