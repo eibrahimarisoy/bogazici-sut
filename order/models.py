@@ -163,6 +163,8 @@ class Order(models.Model):
             self.total_price = total_price
             self.save()
 
+    class Meta:
+        ordering = ['-delivery_date']
 
 @receiver(post_save, sender=OrderItem)
 def order_item_receiver(sender, instance, created, *args, **kwargs):

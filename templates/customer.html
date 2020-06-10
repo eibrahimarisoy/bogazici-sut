@@ -73,7 +73,7 @@
         <tbody>
             {% for customer in customers %}
             <tr class="d-flex">
-                <th class="col-lg-1">{{customer.id}}</th>
+                <th class="col-lg-1"><a href="{% url 'customer_details' customer.id %}">{{customer.id}}</a></th>
                 <td class="col-lg-1">{{customer.first_name}}</td>
                 <td class="col-lg-1">{{customer.last_name}}</td>
                 <td class="col-lg-2">{{customer.phone1}}</td>
@@ -82,11 +82,6 @@
                     <div class="row justify-content-center">
 
                         <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
-                    </div>
-                    <div class="row justify-content-center">
-                        <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger"
-                            onclick="return confirm('{{ customer.phone1 }} numaralı müşteriyi silmek istediğinize emin misiniz?');">Müşteri
-                            Sil</a>
                     </div>
                     <div class="row justify-content-center">
                         <a href="{% url 'add_order' customer.id %}" class="btn btn-dark">Sipariş Ekle</a>

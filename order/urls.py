@@ -3,13 +3,14 @@ from django.urls import include, path
 
 from .views import (CustomerAutocomplete, add_customer, add_customer_from_file,
                     add_district_and_neighborhood, add_order, add_product,
-                    customer, daily_order, daily_revenue, delete_customer,
-                    delete_order, delete_product, deliver_order, delivery_page,
+                    ajax_customer_search, customer, customer_details,
+                    daily_order, daily_revenue, delete_customer, delete_order,
+                    delete_product, deliver_order, delivery_page,
                     download_customer_vcf, export_orders_xls, index,
                     load_neighborhoodes, number_of_customer_orders, order,
-                    order_calendar, pay_with_eft, payment_method_set, products,
-                    unpaid_orders, update_customer, ajax_customer_search,
-                    update_order, update_product, order_report)
+                    order_calendar, order_report, pay_with_eft,
+                    payment_method_set, products, unpaid_orders,
+                    update_customer, update_order, update_product)
 
 urlpatterns = [
     path('', index, name="index"),
@@ -19,6 +20,7 @@ urlpatterns = [
     path('delete-customer/<int:id>/', delete_customer, name="delete_customer"),
     path('download-customer-vcf/<int:id>', download_customer_vcf, name="download_customer_vcf"),
     path('number-of-customer-orders/', number_of_customer_orders, name="number_of_customer_orders"),
+    path('customer-details/<int:id>/', customer_details, name="customer_details"),
 
     path('add-order/', add_order, name="add_order"),
     path('add-order/<int:id>/', add_order, name="add_order"),

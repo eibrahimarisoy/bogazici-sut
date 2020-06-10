@@ -670,6 +670,7 @@ def unpaid_orders(request):
 @staff_member_required
 def pay_with_eft(request, id):
     order = get_object_or_404(Order, id=id, payment_method=2)
+    order.received_money = order.remaining_debt
     order.remaining_debt = 0
     order.is_paid = True
     order.save()
@@ -778,3 +779,10 @@ def order_report(request):
     context['products'] = number_of_order_items
     context['order_calendar_form'] = order_calendar_form
     return render(request, 'order_report.html', context)
+
+
+def customer_details(request, id):
+    context = dict()
+    customer = get_object_or_404(Customer, id=id)
+    context['customer'] = customer
+    return render(request, 'customer_details.html', context)
