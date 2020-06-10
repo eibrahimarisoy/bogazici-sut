@@ -745,10 +745,7 @@ def order_report(request):
     day = date.weekday()
     delta_to_start = timedelta(days=day)
     delta_to_end = timedelta(days=6 - day)
-    
 
-    print(date + delta_to_end)
-    print(date - delta_to_start)
     orders = Order.objects.filter(delivery_date__gte=(date - delta_to_start)). \
         filter(delivery_date__lte=date + delta_to_end)
     
@@ -756,28 +753,24 @@ def order_report(request):
     products = Product.objects.all()
     number_of_order_items = []
 
-
     districts = District.objects.all()
-
     
     for product in products:
         item_list = [product.name]
-
         for district in districts:
-        
-            total = 0
-            
-            for item in product.orderitem_set.filter(order_item__customer__address__district=district).filter(order_item__delivery_date__gte=(date - delta_to_start)). \
+            total = 0            
+            for item in product.orderitem_set. \
+                filter(order_item__customer__address__district=district). \
+                filter(order_item__delivery_date__gte=(date - delta_to_start)). \
                 filter(order_item__delivery_date__lte=date + delta_to_end):
                 total += item.quantity
-                print(total)
-                # number_of_order_items.append(f"{str(Decimal(total))} x {product.name}")
 
-            item_list.append(str(Decimal(total)))
+            item_list.append((Decimal(total)))
+        sub_total = 0
+        for i in range(1, len(item_list)):
+            sub_total += item_list[i]
+        item_list.append(sub_total)
         number_of_order_items.append(item_list)
-            # print(number_of_order_items)
-    
-
 
     context['districts'] = districts
     context['week_start'] = date - delta_to_start
