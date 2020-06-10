@@ -1,5 +1,6 @@
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 
 # Create your models here.
@@ -113,7 +114,7 @@ class OrderItem(models.Model):
     price = models.FloatField(default=0)
     # order = models.ForeignKey('Order', on_delete=models.CASCADE, verbose_name="Sipariş")
     is_deleted = models.BooleanField(default=False)
-    quantity = models.FloatField(verbose_name="Miktar")
+    quantity = models.FloatField(verbose_name="Miktar", validators=[MinValueValidator(0.1)])
 
     createt_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
