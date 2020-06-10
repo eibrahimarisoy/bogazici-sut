@@ -1,0 +1,39 @@
+<table class="table table-striped">
+    <thead>
+        <tr class="d-flex">
+            <th class="col-lg-1">id</th>
+            <th class="col-lg-1">Adı</th>
+            <th class="col-lg-1">Soyadı</th>
+            <th class="col-lg-2">Telefon</th>
+            <th class="col-lg-4">Adres</th>
+            <th class="col-lg-3">Düzenle</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="d-flex">
+            <th class="col-lg-1">{{customer.id}}</th>
+            <td class="col-lg-1">{{customer.first_name}}</td>
+            <td class="col-lg-1">{{customer.last_name}}</td>
+            <td class="col-lg-2">{{customer.phone1}}</td>
+            <td class="col-lg-4">{{customer.address}}</td>
+            <td class="col-lg-3">
+                <div class="row justify-content-center">
+
+                    <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
+                </div>
+                <div class="row justify-content-center">
+                    <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger"
+                        onclick="return confirm('{{ customer.phone1 }} numaralı müşteriyi silmek istediğinize emin misiniz?');">Müşteri
+                        Sil</a>
+                </div>
+                <div class="row justify-content-center">
+                    <a href="{% url 'add_order' customer.id %}" class="btn btn-dark">Sipariş Ekle</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <a href="{% url 'download_customer_vcf' customer.id %}" class="btn btn-success">VCF Dosyası</a>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>

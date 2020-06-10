@@ -2,9 +2,9 @@
 
 import datetime
 import os
+from datetime import timedelta
 from decimal import Decimal
 from string import capwords
-from datetime import timedelta
 
 import vobject
 import xlwt
@@ -16,7 +16,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import Length
 from django.forms import formset_factory, modelformset_factory
 from django.forms.models import inlineformset_factory
@@ -28,8 +28,9 @@ from xlrd import open_workbook
 from order.models import Category, City, District
 from user.forms import LoginForm
 
-from .forms import (AddressForm, BaseModelFormSet, CustomerForm, DeliverForm,
-                    OrderForm, OrderItemForm, ProductForm, OrderCalendarForm)
+from .forms import (AddressForm, BaseModelFormSet, CustomerForm,
+                    CustomerSearchForm, DeliverForm, OrderCalendarForm,
+                    OrderForm, OrderItemForm, ProductForm)
 from .models import Address, Customer, Neighborhood, Order, OrderItem, Product
 
 
@@ -99,13 +100,11 @@ def deliver_order(request, id):
 
 class CustomerAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        # Don't forget to filter out results depending on the visitor !
-
         qs = Customer.objects.all().order_by('phone1')
-
+        qs1 = qs
         if self.q:
-            qs = qs.filter(phone1__contains=self.q)
-
+            qs = qs.filter(Q(phone1__contains=self.q) | Q(first_name__icontains=self.q))
+            # qs1 = qs.filter(first_name__icontains=self.q)
         return qs
 
 
@@ -241,7 +240,7 @@ def index(request):
 def customer(request):
     context = dict()
     customers = Customer.objects.all().order_by('-pk')
-
+    customer_search_form = CustomerSearchForm()
     page = request.GET.get('page', 1)
     paginator = Paginator(customers, 30)
 
@@ -252,6 +251,7 @@ def customer(request):
     except EmptyPage:
         customers = paginator.page(paginator.num_pages)
     context['customers'] = customers
+    context['customer_search_form'] = customer_search_form
 
     return render(request, 'customer.html', context)
 
@@ -350,6 +350,16 @@ def load_neighborhoodes(request):
     neighborhoodes = Neighborhood.objects.filter(
         district_id=district_id).order_by('name')
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
+
+def ajax_customer_search(request):
+    phone1 = request.GET.get('phone_number')
+
+    customer = get_object_or_404(Customer, phone1=phone1)
+    return render(request, 'customer_result_table.html', {'customer': customer})
+
+
+
+
 
 @staff_member_required
 def add_district_and_neighborhood(request):
@@ -558,22 +568,6 @@ def daily_order(request, date):
     context['eft'] = eft
             
     return render(request, 'daily_order.html', context)
-
-
-@staff_member_required
-def search_status(request):
-
-    if request.method == "GET":
-        search_text = request.GET['search_text']
-        if search_text is not None and search_text != u"":
-            search_text = request.GET['search_text']
-            print(search_text)
-            phones = Customer.objects.filter(phone1__contains = search_text)
-            print(phones)
-        else:
-            phones = []
-
-        return render(request, 'ajax_search.html', {'phones':phones})
 
 
 @staff_member_required
@@ -791,4 +785,3 @@ def order_report(request):
     context['products'] = number_of_order_items
     context['order_calendar_form'] = order_calendar_form
     return render(request, 'order_report.html', context)
-

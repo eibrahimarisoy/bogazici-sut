@@ -1,17 +1,17 @@
-from django import forms
-from django.forms import BaseModelFormSet
-from .models import Address, Customer, OrderItem, Order, Product
-from django.contrib.admin.widgets import AdminDateWidget
-from django.forms.fields import DateField
+import datetime
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Column, HTML, Layout, Reset, Row, Submit
-import datetime
+from crispy_forms.layout import HTML, Column, Layout, Reset, Row, Submit
+from dal import autocomplete
+from django import forms
+from django.contrib.admin import widgets
+from django.contrib.admin.widgets import AdminDateWidget
+from django.forms import BaseModelFormSet
+from django.forms.fields import DateField
+from django.forms.widgets import SelectDateWidget
 from tempus_dominus.widgets import DatePicker
 
-from dal import autocomplete
-from django.forms.widgets import SelectDateWidget
-from django.contrib.admin import widgets
+from .models import Address, Customer, Order, OrderItem, Product
 
 
 class ProductForm(forms.ModelForm):
@@ -98,5 +98,16 @@ class BaseModelFormSet(BaseModelFormSet):
 class OrderCalendarForm(forms.Form):
     date = forms.DateField(widget=AdminDateWidget(), initial=datetime.date.today(), label="")
 
-# class ReportCalendar(forms.Form):
-#     date = forms.DateField(widget=SplitDateWidget())
+
+class CustomerSearchForm(forms.Form):
+   
+    phone1 = forms.ModelChoiceField(
+        label="Müşteri",
+        queryset=Customer.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='customer_autocomplete',
+            attrs={
+                # Set some placeholder
+                'data-placeholder': 'Müşteri Telefon No...',
+                },
+    ))

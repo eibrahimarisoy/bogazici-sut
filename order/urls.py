@@ -8,7 +8,7 @@ from .views import (CustomerAutocomplete, add_customer, add_customer_from_file,
                     download_customer_vcf, export_orders_xls, index,
                     load_neighborhoodes, number_of_customer_orders, order,
                     order_calendar, pay_with_eft, payment_method_set, products,
-                    search_status, unpaid_orders, update_customer,
+                    unpaid_orders, update_customer, ajax_customer_search,
                     update_order, update_product, order_report)
 
 urlpatterns = [
@@ -44,14 +44,14 @@ urlpatterns = [
     # ajax
     # path('ajax/load-townships/', load_townships, name='ajax_load_townships'),  
     path('ajax/load-neihgborhoodes/', load_neighborhoodes, name='ajax_load_neighborhoodes'),
-    path('search-status/', search_status, name="search_status"),
+    path('ajax-customer-search/', ajax_customer_search, name="ajax_customer_search"),
 
     path('daily-order/<str:date>/', daily_order, name="daily_order"),
     path('delivery-page/', delivery_page, name="delivery_page"),
     path('deliver-order/<int:id>/', deliver_order, name="deliver_order"),
 
     url(
-        r'^country-autocomplete/$',
+        r'^customer-autocomplete/$',
         CustomerAutocomplete.as_view(),
         name='customer_autocomplete',
     ),
