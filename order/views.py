@@ -288,17 +288,10 @@ def add_customer(request):
     customer_form = CustomerForm(request.POST or None)
     if request.method == "POST":
         if address_form.is_valid() and customer_form.is_valid():
-            
-            try:
-                customer = customer_form.save(commit=False)
-            except:
-                context['address_form'] = address_form
-                context['customer_form'] = customer_form
-                messages.warning(request, "Müşteri Kayıtlı")
-                return render(request, 'add_customer.html', context)
-
+            customer = customer_form.save(commit=False)
             address = address_form.save()
             customer.address = address
+            customer.nick = f"{customer.address.district.nick}-{len(Customer.objects.filter(address__district=customer.address.district))+1:04}"
             customer.save()
 
             messages.success(request, 'Kullanıcı Başarıyla Eklendi')

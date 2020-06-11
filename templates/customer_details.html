@@ -8,28 +8,31 @@
     <h3 class="text-center">Müşteri Bilgileri</h3>
 
     <div class="row justify-content-center mt-2">
-        <div class="col-3 border rounded">
+        <div class="col-md-3 border rounded">
+            {{customer.nick}}
+        </div>
+        <div class="col-md-3 border rounded">
             Ad Soyad: {{customer.first_name}} {{customer.last_name}}
         </div>
-        <div class="col-3 border rounded">
+        <div class="col-md-3 border rounded">
             Telefon: {{ customer.phone1 }}
         </div>
-        <div class="col-3 border rounded">
+        <div class="col-md-3 border rounded">
             Adres: {{customer.address}}
         </div>
     </div>
     <div class="row justify-content-center mt-2">
-        <div class="col-2">
+        <div class="col-md-2">
             <a href="{% url 'update_customer' customer.id %}" class="btn btn-info">Güncelle</a>
         </div>
-        <div class="col-2">
+        <div class="col-md-2">
             <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger"
                 onclick="return confirm('{{ customer.phone1 }} numaralı müşteriyi silmek istediğinize emin misiniz?');">Müşteri
                 Sil</a> </div>
-        <div class="col-2">
+        <div class="col-md-2">
             <a href="{% url 'add_order' customer.id %}" class="btn btn-dark">Sipariş Ekle</a>
         </div>
-        <div class="col-2">
+        <div class="col-md-2">
             <a href="{% url 'download_customer_vcf' customer.id %}" class="btn btn-success">VCF Dosyası</a>
 
         </div>

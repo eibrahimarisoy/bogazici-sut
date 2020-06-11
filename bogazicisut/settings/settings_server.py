@@ -11,5 +11,9 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['www.bogaziciciftlik.com', 'bogaziciciftlik.com', '64.225.71.41']
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
