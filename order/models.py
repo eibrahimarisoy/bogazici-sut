@@ -32,7 +32,7 @@ class City(models.Model):
 class District(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
-    nick = models.CharField(max_length=4, null=True, blank=True)
+    nick = models.CharField(max_length=4, null=True, blank=True, unique=True)
 
     class Meta:
         ordering = ['name']
@@ -70,7 +70,7 @@ class Address(models.Model):
 class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
-    nick = models.CharField(max_length=9, null=True, blank=True)
+    nick = models.CharField(max_length=9, null=True, blank=True, unique=True)
     phone1 = models.CharField(max_length=50, verbose_name="Telefon1")
     phone2 = models.CharField(max_length=50, blank=True, null=True, verbose_name="Telefon2")
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
@@ -131,7 +131,7 @@ class Order(models.Model):
         EFT = 2, 'EFT'
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
-    nick =  models.CharField(max_length=14, null=True, blank=True)
+    nick =  models.CharField(max_length=14, null=True, blank=True, unique=True)
     items = models.ManyToManyField(OrderItem, verbose_name="Ürünler", related_name='order_item')
 
     delivery_date = models.DateField(blank=True, null=True, verbose_name="Teslimat Tarihi")
