@@ -741,7 +741,7 @@ def daily_revenue(request):
         
 
     # getting unpaid orders
-    unpaid_orders = daily_orders.filter(is_paid=False)
+    unpaid_orders = daily_orders
 
     context['unpaid_orders'] = unpaid_orders
     context['received_money'] = received_money

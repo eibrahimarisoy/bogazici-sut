@@ -139,7 +139,7 @@ class Order(models.Model):
         verbose_name="Ödeme Şekli"
     )
     total_price = models.FloatField(default=0, verbose_name="Toplam Tutar")
-    notes = models.CharField(max_length=50, default="", verbose_name="Notlar")
+    notes = models.CharField(max_length=50, default="", verbose_name="Notlar", blank=True, null=True)
     is_delivered = models.BooleanField(default=False)
     is_paid = models.BooleanField(default=False)
     received_money = models.FloatField(default=0.0)
