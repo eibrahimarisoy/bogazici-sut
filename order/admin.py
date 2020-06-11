@@ -45,8 +45,11 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'customer',
+        'nick',
         'delivery_date',
+        
     )
+    list_editable = ['nick']
     list_filter = ('delivery_date',)
     
 

@@ -76,7 +76,7 @@ class Customer(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
 
     def __str__(self):
-        return f"{self.phone1}"
+        return f"{self.nick}"
 
     class Meta:
         ordering = ['phone1']
@@ -131,6 +131,7 @@ class Order(models.Model):
         EFT = 2, 'EFT'
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
+    nick =  models.CharField(max_length=14, null=True, blank=True)
     items = models.ManyToManyField(OrderItem, verbose_name="Ürünler", related_name='order_item')
 
     delivery_date = models.DateField(blank=True, null=True, verbose_name="Teslimat Tarihi")

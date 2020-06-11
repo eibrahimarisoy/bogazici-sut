@@ -102,7 +102,6 @@ def deliver_order(request, id):
 class CustomerAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Customer.objects.all().order_by('phone1')
-        qs1 = qs
         if self.q:
             qs = qs.filter(Q(phone1__contains=self.q) | Q(first_name__icontains=self.q))
             # qs1 = qs.filter(first_name__icontains=self.q)
@@ -338,6 +337,8 @@ def add_order(request, id=None):
                 order.items.add(item)
 
             order.total_price_update()
+
+            order.nick = f"{order.customer.nick}-{len(order.customer.order_set.all()):04}"
             order.save()
             return redirect('order')
         
