@@ -43,6 +43,7 @@ def delivery_page(request):
 
     return render(request, 'delivery_page.html', context)
 
+
 @login_required
 def deliver_order(request, id):
     context = dict()
@@ -236,6 +237,7 @@ def index(request):
 
     return render(request, 'index.html', context)
 
+
 @staff_member_required
 def customer(request):
     context = dict()
@@ -254,6 +256,7 @@ def customer(request):
     context['customer_search_form'] = customer_search_form
 
     return render(request, 'customer.html', context)
+
 
 @staff_member_required
 def order(request):
@@ -277,6 +280,7 @@ def order(request):
     context['orders'] = Order.objects.all().order_by('-createt_at')
     return render(request, 'order.html', context)
 
+
 @staff_member_required
 def add_customer(request):
     context = dict()
@@ -284,8 +288,16 @@ def add_customer(request):
     customer_form = CustomerForm(request.POST or None)
     if request.method == "POST":
         if address_form.is_valid() and customer_form.is_valid():
+            
+            try:
+                customer = customer_form.save(commit=False)
+            except:
+                context['address_form'] = address_form
+                context['customer_form'] = customer_form
+                messages.warning(request, "Müşteri Kayıtlı")
+                return render(request, 'add_customer.html', context)
+
             address = address_form.save()
-            customer = customer_form.save(commit=False)
             customer.address = address
             customer.save()
 
@@ -301,6 +313,7 @@ def add_customer(request):
     context['address_form'] = address_form
     context['customer_form'] = customer_form
     return render(request, 'add_customer.html', context)
+
 
 @staff_member_required
 def add_order(request, id=None):
@@ -343,6 +356,7 @@ def add_order(request, id=None):
 
     return render(request, 'add_order.html', context)
 
+
 @staff_member_required
 def load_neighborhoodes(request):
     district_id = request.GET.get('district')
@@ -351,14 +365,13 @@ def load_neighborhoodes(request):
         district_id=district_id).order_by('name')
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
 
+
+@staff_member_required
 def ajax_customer_search(request):
     phone1 = request.GET.get('phone_number')
 
     customer = get_object_or_404(Customer, phone1=phone1)
     return render(request, 'customer_result_table.html', {'customer': customer})
-
-
-
 
 
 @staff_member_required
@@ -379,6 +392,7 @@ def add_district_and_neighborhood(request):
         print(district_name, neighborhood)
     return redirect('index')
 
+
 @staff_member_required
 def add_product(request):
     context = dict()
@@ -394,6 +408,7 @@ def add_product(request):
     
     context['product_form'] = product_form
     return render(request, 'add_product.html', context)
+
 
 @staff_member_required
 def products(request):
