@@ -147,6 +147,7 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
     received_money = models.FloatField(default=0.0)
     remaining_debt = models.FloatField(default=0.0)
+    service_fee = models.FloatField(default=0.0)
 
     is_instagram = models.BooleanField(default=False, verbose_name="İnstagram?")
     instagram_username = models.CharField(max_length=50, null=True, blank=True, help_text="Kullanıcı Adı")
@@ -163,9 +164,7 @@ class Order(models.Model):
             for item in self.items.all():
                 if item.is_deleted == False:
                     total_price += item.price * item.quantity
-            
             self.total_price = total_price
-            self.save()
 
     class Meta:
         ordering = ['-delivery_date']

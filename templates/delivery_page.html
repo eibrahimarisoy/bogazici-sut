@@ -24,6 +24,7 @@
                         <th scope="col">Sipariş Detay</th>
                         <th scope="col">Toplam Tutar</th>
                         <th scope="col">Alınan Ödeme</th>
+                        <th scope="col">Servis Ücreti</th>
                         <th scope="col">Düzenle</th>
                     </tr>
                 </thead>
@@ -45,6 +46,7 @@
                         </td>
                         <td class="">{{order.total_price}} TL</td>
                         <td>{{order.received_money}}</td>
+                        <td>{{order.service_fee}}</td>
                         <td>
                             <div class="row justify-content-center">
                                 <a href="{% url 'payment_method_set' order.id 'Nakit' %}"
