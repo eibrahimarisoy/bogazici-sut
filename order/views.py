@@ -460,7 +460,7 @@ def update_customer(request, id):
     customer_form = CustomerForm(instance=customer)
 
     if request.method == "POST":
-        customer_form = CustomerForm(request.POST, instance=customer)
+        customer_form = CustomerForm(request.POST or None, instance=customer)
         address_form = AddressForm(request.POST, instance=customer.address)
         if customer_form.is_valid() and address_form.is_valid():
             customer_form.save()

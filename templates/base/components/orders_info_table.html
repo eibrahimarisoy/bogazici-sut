@@ -16,7 +16,7 @@
                 {% for order in orders %}
 
                 <tr class="">
-                    <th scope="row">{{forloop.counter}}</td>
+                    <th scope="row">{{order.nick}}</td>
                     <td style="width:5%">{{order.delivery_date | date:'d F'}} {{order.delivery_date| date:"l"}}</td>
                     <td style="width:5%">{{order.customer.first_name}} {{order.customer.last_name}}</td>
                     <td>{{order.customer.phone1 | phone2numeric}}</td>

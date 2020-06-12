@@ -42,10 +42,10 @@
         <thead>
             <tr class="">
                 <th scope="col">Sıra No</th>
+                <th scope="col">Sipariş Kodu</th>
                 <th scope="col">Teslimat Tarihi</th>
                 <th scope="col">Sipariş Detay</th>
                 <th scope="col">Ödeme Yöntemi</th>
-
                 <th scope="col">Toplam Tutar</th>
                 <th scope="col">Alınan Ödeme</th>
                 <th scope="col">Kalan Tutar</th>
@@ -57,6 +57,8 @@
 
             <tr class="">
                 <th scope="row">{{forloop.counter}}</td>
+                <td >{{order.nick}}</td>
+
                 <td >{{order.delivery_date | date:'d F'}} {{order.delivery_date| date:"l"}}</td>
                 <td >
                     {% for item in order.items.all %}

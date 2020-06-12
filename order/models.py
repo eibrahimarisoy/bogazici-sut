@@ -71,7 +71,7 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
     nick = models.CharField(max_length=9, null=True, blank=True, unique=True)
-    phone1 = models.CharField(max_length=50, verbose_name="Telefon1")
+    phone1 = models.CharField(max_length=50, verbose_name="Telefon1", unique=True)
     phone2 = models.CharField(max_length=50, blank=True, null=True, verbose_name="Telefon2")
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
 

@@ -32,13 +32,13 @@ class CustomerForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'phone1', 'phone2')
 
 
-    def clean(self):
-        cleaned_data = super(CustomerForm, self).clean()
-        phone1 = cleaned_data.get('phone1')
-        if Customer.objects.filter(phone1=phone1).exists():
-            raise forms.ValidationError("Müşteri Daha Önce Kaydedildi")
+    # def clean(self):
+    #     cleaned_data = super(CustomerForm, self).clean()
+    #     phone1 = cleaned_data.get('phone1')
+    #     if Customer.objects.filter(phone1=phone1).exists():
+    #         raise forms.ValidationError("Müşteri Daha Önce Kaydedildi")
 
-        return cleaned_data
+    #     return cleaned_data
 
 class DeliverForm(forms.ModelForm):
 
