@@ -126,7 +126,7 @@ def export_orders_xls(request, date):
     font_style = xlwt.XFStyle()    
     font_style.font.bold = True
 
-    columns = ['Sıra No', 'Ad Soyad', 'Telefon', ' Adres', 'Tavuk', 'Yumurta', \
+    columns = ['Sıra No', 'Sipariş Kodu', 'Ad Soyad', 'Telefon', ' Adres', 'Tavuk', 'Yumurta', \
                'Süt', 'Tereyağ', 'Peynir', 'Sucuk', 'Toplam Tutar', 'Ödeme Şekli', \
                'Notlar' ]
 
@@ -142,7 +142,7 @@ def export_orders_xls(request, date):
     i = 0
     for category in categories:
         number_of_order_items = []
-        col_num = 4
+        col_num = 5
         for product in products.filter(category=category):
             total = 0
             for item in product.orderitem_set.all().filter(order_item__delivery_date=date):
@@ -156,7 +156,7 @@ def export_orders_xls(request, date):
     for order in orders:
         total_amount += order.total_price
         
-    ws.write(row_num +2, 10, total_amount, font_style)
+    ws.write(row_num +2, 11, total_amount, font_style)
 
     row_num = 3
     col_num = 0
@@ -164,9 +164,10 @@ def export_orders_xls(request, date):
         row_num += 1
         col_num = 0
         ws.write(row_num, col_num, f"{row_num-3}", font_style)
-        ws.write(row_num, col_num + 1, f"{order.customer.first_name.upper()} {order.customer.last_name.upper()}", font_style)
-        ws.write(row_num, col_num + 2, order.customer.phone1, font_style)
-        ws.write(row_num, col_num + 3, order.customer.address.get_full_address().upper(), font_style)
+        ws.write(row_num, col_num + 1, order.nick, font_style)
+        ws.write(row_num, col_num + 2, f"{order.customer.first_name.upper()} {order.customer.last_name.upper()}", font_style)
+        ws.write(row_num, col_num + 3, order.customer.phone1, font_style)
+        ws.write(row_num, col_num + 4, order.customer.address.get_full_address().upper(), font_style)
 
         tavuk, yumurta, süt, tereyağ, peynir, sucuk = "", "", "", "", "", ""
                
@@ -193,15 +194,18 @@ def export_orders_xls(request, date):
         if order.is_instagram:
             notes += "\nKullanıcı Adı:" + order.instagram_username
 
-        ws.write(row_num, col_num + 4, tavuk.upper(), font_style)
-        ws.write(row_num, col_num + 5, yumurta.upper(), font_style)
-        ws.write(row_num, col_num + 6, süt.upper(), font_style)
-        ws.write(row_num, col_num + 7, tereyağ.upper(), font_style)
-        ws.write(row_num, col_num + 8, peynir.upper(), font_style)
-        ws.write(row_num, col_num + 9, sucuk.upper(), font_style)
-        ws.write(row_num, col_num + 10, order.total_price, font_style)
-        ws.write(row_num, col_num + 11, "", font_style)
-        ws.write(row_num, col_num + 12, notes.upper(), font_style)
+        if len(order.customer.order_set.all()) == 1:
+            notes = "***İlk Sipariş***"
+
+        ws.write(row_num, col_num + 5, tavuk.upper(), font_style)
+        ws.write(row_num, col_num + 6, yumurta.upper(), font_style)
+        ws.write(row_num, col_num + 7, süt.upper(), font_style)
+        ws.write(row_num, col_num + 8, tereyağ.upper(), font_style)
+        ws.write(row_num, col_num + 9, peynir.upper(), font_style)
+        ws.write(row_num, col_num + 10, sucuk.upper(), font_style)
+        ws.write(row_num, col_num + 11, order.total_price, font_style)
+        ws.write(row_num, col_num + 12, "", font_style)
+        ws.write(row_num, col_num + 13, notes.upper(), font_style)
                     
     wb.save(response)
     return response
@@ -352,6 +356,7 @@ def add_order(request, id=None):
             
             order.total_price += order.service_fee
             order.save()
+            messages.success(request, 'Sipariş Başarıyla Kaydedildi.')
             return redirect('order')
         
         context['order_formset'] = order_formset
