@@ -334,27 +334,13 @@ def add_order(request, id=None):
         order_formset = OrderItemFormSet(request.POST)
 
         if order_form.is_valid() and order_formset.is_valid():
-            categories = []
             order = order_form.save(commit=True)
             order_products = order_formset.save(commit=False)
             for item in order_products:
                 item.save()
                 order.items.add(item)
-                categories.append(item.product.category.name)
 
             order.total_price_update()
-            order.nick = f"{order.customer.nick}-{len(order.customer.order_set.all()):04}"
-
-            if "Tavuk" in categories:
-                order.service_fee = 0                
-            elif order.total_price < 100:
-                order.service_fee = 20
-            elif 100 < order.total_price < 150:
-                order.service_fee = 10
-            else:
-                order.service_fee = 0
-            
-            order.total_price += order.service_fee
             order.save()
             messages.success(request, 'Sipariş Başarıyla Kaydedildi.')
             return redirect('order')
@@ -520,7 +506,6 @@ def update_order(request, id):
         order_item_form_set = OrderItemFormSet(request.POST, request.FILES)
 
         if order_form.is_valid() and order_item_form_set.is_valid():
-            categories = []
             order = order_form.save(commit=True)
             order_items = order_item_form_set.save(commit=False)
             for obj in order_item_form_set.deleted_objects:
@@ -531,17 +516,6 @@ def update_order(request, id):
                 order.items.add(item)
 
             order.total_price_update()
-
-            if "Tavuk" in categories:
-                order.service_fee = 0                
-            elif order.total_price < 100:
-                order.service_fee = 20
-            elif 100 < order.total_price < 150:
-                order.service_fee = 10
-            else:
-                order.service_fee = 0
-            
-            order.total_price += order.service_fee
             order.save()
             messages.success(request, 'Sipariş Bilgileri Başarıyla Güncellendi.')
             return redirect('order')

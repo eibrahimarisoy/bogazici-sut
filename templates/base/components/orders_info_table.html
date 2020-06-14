@@ -3,6 +3,7 @@
             <thead>
                 <tr class="">
                     <th scope="col">Sıra No</th>
+                    <th scope="col">Sipariş Kodu</th>
                     <th scope="col">Teslimat Tarihi</th>
                     <th scope="col">Ad Soyad</th>
                     <th scope="col">Telefon</th>
@@ -16,7 +17,8 @@
                 {% for order in orders %}
 
                 <tr class="">
-                    <th scope="row">{{order.nick}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{order.nick}}</td>
                     <td style="width:5%">{{order.delivery_date | date:'d F'}} {{order.delivery_date| date:"l"}}</td>
                     <td style="width:5%">{{order.customer.first_name}} {{order.customer.last_name}}</td>
                     <td>{{order.customer.phone1 | phone2numeric}}</td>
