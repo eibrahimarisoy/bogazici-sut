@@ -65,6 +65,36 @@
     </table>
 
 
+    <table class="table table-striped table-bordered table-responsive-lg table-sm table-hover">
+        <thead>
+            <p class="text-center">
+                İlçe Bazlı Haftalık Sipariş Sayıları
+            </p>
+            <p class="text-center">
+                {{ week_start }} - {{week_end}}
+            </p>
+            <tr class="">
+
+                {% for district in districts %}
+
+                <td>{{ district.name }}</td>
+
+                {% endfor %}
+
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr class="text-center">
+                {% for item in district_orders %}
+                  <td>{{item}}</td>
+                {% endfor %}
+            </tr>
+            
+
+        </tbody>
+    </table>
+
 
 
 </div>

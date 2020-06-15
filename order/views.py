@@ -801,6 +801,12 @@ def order_report(request):
         item_list.append(sub_total)
         number_of_order_items.append(item_list)
 
+    district_orders = []
+    for district in districts:
+        district_orders.append(len(orders.filter(customer__address__district=district)))
+        
+
+    context['district_orders'] = district_orders
     context['districts'] = districts
     context['week_start'] = date - delta_to_start
     context['week_end'] = date + delta_to_end
