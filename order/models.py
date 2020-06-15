@@ -67,6 +67,9 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.district.name.upper()} {self.neighborhood.name.upper()} {self.address_info.upper()}"
 
+    class Meta:
+        ordering = ['district']
+
 class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
@@ -76,7 +79,7 @@ class Customer(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
 
     def __str__(self):
-        return f"{self.nick}"
+        return f"{self.phone1}"
 
     class Meta:
         ordering = ['phone1']

@@ -37,9 +37,18 @@ from .models import Address, Customer, Neighborhood, Order, OrderItem, Product
 @login_required
 def delivery_page(request):
     context = dict()
-    today = datetime.date.today()
-    orders = Order.objects.filter(delivery_date=today).order_by('customer__address__district__name')
+    date = datetime.date.today()
+
+    order_calendar_form = OrderCalendarForm(request.GET or None)
+    
+    
+    if order_calendar_form.is_valid():
+        date = order_calendar_form.cleaned_data.get('date')
+           
+
+    orders = Order.objects.filter(delivery_date=date).order_by('customer__address__district__name')
     context['orders'] = orders
+    context['order_calendar_form'] = order_calendar_form
 
     return render(request, 'delivery_page.html', context)
 
@@ -195,7 +204,7 @@ def export_orders_xls(request, date):
             notes += "\nKullanıcı Adı:" + order.instagram_username
 
         if len(order.customer.order_set.all()) == 1:
-            notes = "***İlk Sipariş***"
+            notes += "***İlk Sipariş***"
 
         ws.write(row_num, col_num + 5, tavuk.upper(), font_style)
         ws.write(row_num, col_num + 6, yumurta.upper(), font_style)
@@ -242,9 +251,15 @@ def index(request):
 
 
 @staff_member_required
-def customer(request):
+def customer(request, sort_by=None):
     context = dict()
-    customers = Customer.objects.all().order_by('-pk')
+    customers = customers = Customer.objects.all()
+    if sort_by is None:
+        customers = customers.order_by('-pk')
+    elif sort_by == "nick":
+        customers = customers.order_by('nick')
+    elif sort_by == "address":
+        customers = customers.order_by('address')
     customer_search_form = CustomerSearchForm()
     page = request.GET.get('page', 1)
     paginator = Paginator(customers, 30)
@@ -341,6 +356,7 @@ def add_order(request, id=None):
                 order.items.add(item)
 
             order.total_price_update()
+            order.nick = f"{order.customer.nick}-{len(order.customer.order_set.all()):04}"
             order.save()
             messages.success(request, 'Sipariş Başarıyla Kaydedildi.')
             return redirect('order')

@@ -62,20 +62,21 @@
     <table class="table table-striped">
         <thead>
             <tr class="d-flex">
-                <th class="col-lg-1">Kodu</th>
-                <th class="col-lg-1">Adı</th>
-                <th class="col-lg-1">Soyadı</th>
+                <th class="col-lg-1">Sıra No</th>
+                <th class="col-lg-1"><a href="{% url 'customer' 'nick' %}">Müşteri Kodu</a></th>
+                <th class="col-lg-1">Adı Soyadı</th>
                 <th class="col-lg-2">Telefon</th>
-                <th class="col-lg-4">Adres</th>
+                <th class="col-lg-4"><a href="{% url 'customer' 'address' %}">Adres</a></th>
                 <th class="col-lg-3">Düzenle</th>
             </tr>
         </thead>
+
         <tbody>
             {% for customer in customers %}
             <tr class="d-flex">
-                <th class="col-lg-1"><a href="{% url 'customer_details' customer.id %}">{{customer.nick}}</a></th>
-                <td class="col-lg-1">{{customer.first_name}}</td>
-                <td class="col-lg-1">{{customer.last_name}}</td>
+                <th class="col-lg-1">{{forloop.counter}}</th>
+                <td class="col-lg-1"><a href="{% url 'customer_details' customer.id %}">{{customer.nick}}</a></td>
+                <td class="col-lg-1">{{customer.first_name}} {{customer.last_name}}</td>
                 <td class="col-lg-2">{{customer.phone1}}</td>
                 <td class="col-lg-4">{{customer.address}}</td>
                 <td class="col-lg-3">

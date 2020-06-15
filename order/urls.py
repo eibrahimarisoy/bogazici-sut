@@ -16,6 +16,8 @@ urlpatterns = [
     path('', index, name="index"),
     path('add-customer/', add_customer, name="add_customer"),
     path('customer/', customer, name="customer"),
+    path('customer/<str:sort_by>/', customer, name="customer"),
+
     path('update-customer/<int:id>/', update_customer, name="update_customer"),
     path('delete-customer/<int:id>/', delete_customer, name="delete_customer"),
     path('download-customer-vcf/<int:id>', download_customer_vcf, name="download_customer_vcf"),
