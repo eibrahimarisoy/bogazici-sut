@@ -136,7 +136,7 @@ def export_orders_xls(request, date):
     font_style.font.bold = True
 
     columns = ['Sıra No', 'Sipariş Kodu', 'Ad Soyad', 'Telefon', ' Adres', 'Tavuk', 'Yumurta', \
-               'Süt', 'Tereyağ', 'Peynir', 'Sucuk', 'Toplam Tutar', 'Ödeme Şekli', \
+               'Süt', 'Tereyağ', 'Peynir', 'Sucuk', 'Diğer', 'Toplam Tutar', 'Ödeme Şekli', \
                'Notlar' ]
 
     for col_num in range(len(columns)):
@@ -165,7 +165,7 @@ def export_orders_xls(request, date):
     for order in orders:
         total_amount += order.total_price
         
-    ws.write(row_num +2, 11, total_amount, font_style)
+    ws.write(row_num +2, 12, total_amount, font_style)
 
     row_num = 3
     col_num = 0
@@ -178,7 +178,7 @@ def export_orders_xls(request, date):
         ws.write(row_num, col_num + 3, order.customer.phone1, font_style)
         ws.write(row_num, col_num + 4, order.customer.address.get_full_address().upper(), font_style)
 
-        tavuk, yumurta, süt, tereyağ, peynir, sucuk = "", "", "", "", "", ""
+        tavuk, yumurta, süt, tereyağ, peynir, sucuk, diğer = "", "", "", "", "", "", ""
                
         for item in order.items.all():
             if item.product.category.name == "Tavuk":
@@ -198,7 +198,10 @@ def export_orders_xls(request, date):
 
             elif item.product.category.name == "Sucuk":
                 sucuk += f"{Decimal(item.quantity)} {item.product.distribution_unit}"
-
+            
+            elif item.product.category.name == "Diğer":
+                diğer += (item.product.name + "\n") * int(item.quantity) 
+        
         notes = order.notes
         if order.is_instagram:
             notes += "\nKullanıcı Adı:" + order.instagram_username
@@ -212,9 +215,10 @@ def export_orders_xls(request, date):
         ws.write(row_num, col_num + 8, tereyağ.upper(), font_style)
         ws.write(row_num, col_num + 9, peynir.upper(), font_style)
         ws.write(row_num, col_num + 10, sucuk.upper(), font_style)
-        ws.write(row_num, col_num + 11, order.total_price, font_style)
-        ws.write(row_num, col_num + 12, "", font_style)
-        ws.write(row_num, col_num + 13, notes.upper(), font_style)
+        ws.write(row_num, col_num + 11, diğer.upper(), font_style)
+        ws.write(row_num, col_num + 12, order.total_price, font_style)
+        ws.write(row_num, col_num + 13, "", font_style)
+        ws.write(row_num, col_num + 14, notes.upper(), font_style)
                     
     wb.save(response)
     return response
