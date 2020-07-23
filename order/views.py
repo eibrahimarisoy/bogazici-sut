@@ -191,7 +191,7 @@ def export_orders_xls(request, date):
                 süt += (item.product.name + "\n") * int(item.quantity)
 
             elif item.product.category.name == "Tereyağ":
-                tereyağ += (item.product.name) + " " + str(Decimal(item.quantity))
+                tereyağ += (item.product.name) + " " + str(Decimal(item.quantity)) + "\n"
 
             elif item.product.category.name == "Peynir":
                 peynir += (item.product.name + "\n") * int(item.quantity)
@@ -200,7 +200,7 @@ def export_orders_xls(request, date):
                 sucuk += f"{Decimal(item.quantity)} {item.product.distribution_unit}"
             
             elif item.product.category.name == "Diğer":
-                diğer += (item.product.name + "\n") * int(item.quantity) 
+                diğer += (item.product.name) + " " + str(Decimal(item.quantity)) + "\n"
         
         notes = order.notes
         if order.is_instagram:
@@ -299,7 +299,7 @@ def order(request):
 
     context['product_numbers'] = number_of_order_items
     
-    context['orders'] = Order.objects.all().order_by('-createt_at')
+    context['orders'] = Order.objects.all().order_by('-createt_at')[:30]
     return render(request, 'order.html', context)
 
 
