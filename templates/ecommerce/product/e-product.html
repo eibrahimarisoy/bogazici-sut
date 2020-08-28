@@ -1,0 +1,27 @@
+{% load static %}
+
+<div class="col-md-6 col-lg-3 ">
+    <div class="product">
+        <a href="{% url 'e-product_details' item.id %}" class="img-prod"><img class="img-fluid"
+                src="{% if item.image %}{{ item.image.url }} {% else %}  {% endif %}" alt="{{ item.name }}">
+            <!-- <span class="status">30%</span> İNDİRİM ORANI -->
+            <div class="overlay"></div>
+        </a>
+        <div class="text py-3 pb-4 px-3 text-center">
+            <h3><a href="{% url 'e-product_details' item.id %}">{{item.name}}</a></h3>
+            <div class="d-flex justify-content-center">
+                <div class="row">
+                    <h3 class="font-weight-bold">{{item.price}} TL</h3>
+                </div>
+   
+            </div>
+            <div class="d-flex px-3">
+                <div class="m-auto d-flex">
+                    <p><a href="{% url 'order_item_add' item.id %}" class="btn btn-black btn-sm py-3 px-5">Sepete
+                            Ekle</a></p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

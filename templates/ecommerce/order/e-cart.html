@@ -1,0 +1,119 @@
+{% extends "ecommerce/base/e-base.html" %}
+
+{% load static %}
+{% load l10n %}
+
+{% block context %}
+
+{% include "ecommerce/base/components/e-banner.html" %}
+
+
+<section class="ftco-section ftco-cart">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="cart-list">
+                    <table class="table">
+                        <thead class="thead-primary">
+                            <tr class="text-center">
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                                <th>Ürün Adı</th>
+                                <th>Fiyat</th>
+                                <th>Miktar</th>
+                                <th>Toplam Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+
+                            <tr class="text-center">
+                                <td class="product-remove"><a
+                                        href="{% url 'order_item_delete' order.id item.id %}"><span
+                                            class="ion-ios-close"></span></a></td>
+
+                                <td class="image-prod">
+                                    <div class="img" style="background-image:url({% static 'images/product-3.jpg' %});">
+                                    </div>
+                                </td>
+
+                                <td class="product-name">
+                                    <h3>{{item.product.name}}</h3>
+                                </td>
+
+                                <td class="price">{{item.price}} TL</td>
+
+                                <td class="quantity">
+
+                                    <div class="input-group mb-3 align-items-center">
+                                        <form id="{{ item.id }}" action="{% url 'order_item_update' item.id %}"
+                                            method="post">
+                                            {% csrf_token %}
+                                            <input type="number" lang="tr" name="quantity" id="quantity"
+                                                class="quantity form-control input-number"
+                                                value="{% localize off %}{{ item.quantity }}{% endlocalize %}" 
+                                                max="100" 
+                                                {% if item.product.distribution_unit == "kilogram" %} 
+                                                step="0.5" min="0.5"
+                                                {% else %} 
+                                                step="1" min="1" 
+                                                {% endif %} required="required"
+                                                oninvalid="this.setCustomValidity('0 ile 100 arasında sayı giriniz. (2, 3.5 vb.)')"
+                                                >
+
+                                            <span>{{item.product.get_distribution_unit_display }}</span>
+                                            <br>
+                                            <button type="submit"
+                                                class="btn btn-primary btn-sm py-3 px-4">Güncelle</button>
+                                        </form>
+                                    </div>
+                                </td>
+
+                                <td class="total">{% widthratio item.price 1 item.quantity %} TL</td>
+
+
+                            </tr><!-- END TR-->
+
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-lg-4 mt-5 cart-wrap ">
+                <div class="cart-total mb-3">
+                    <h3>Sipariş Toplamı</h3>
+
+                    <p class="d-flex total-price">
+                        <span>Toplam Tutar</span>
+                        <span>{{ order.total_price }} TL</span>
+                    </p>
+                </div>
+                <p><a href="{% url 'e-checkout' %}" class="btn btn-primary py-3 px-4">Sepeti Onayla</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js"> 
+</script>
+
+<script>
+    $("#update").click(function () {
+        console.log("tesst")
+        var name = $("#name").textContent
+        var quantity = $("#quantity").val()
+
+        console.log(name)
+        console.log($('#name'))
+        console.log(quantity)
+    })
+
+
+
+</script> -->
+
+{% endblock context %}

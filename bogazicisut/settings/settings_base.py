@@ -25,7 +25,7 @@ SECRET_KEY = 'l*6*9svv4o&9qfoi^+#ib4jbd)1*m1ll+-@0injjj_jy%+%-ar'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =  True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.36', 'localhost']
 
 
 # Application definition
@@ -73,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'bogazicisut.nav_context.nav_data'
             ],
         },
     },
@@ -138,3 +139,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
 LOGIN_URL = '/index/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '../media')

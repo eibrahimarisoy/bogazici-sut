@@ -1,4 +1,5 @@
 import datetime
+from django.core.validators import MinValueValidator, RegexValidator
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Column, Layout, Reset, Row, Submit
@@ -17,7 +18,7 @@ from .models import Address, Customer, Order, OrderItem, Product
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ('category', 'name', 'distribution_unit', 'price')
+        fields = ('category', 'name', 'distribution_unit', 'price', 'image')
         
 
 class AddressForm(forms.ModelForm):
@@ -32,13 +33,7 @@ class CustomerForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'phone1', 'phone2')
 
 
-    # def clean(self):
-    #     cleaned_data = super(CustomerForm, self).clean()
-    #     phone1 = cleaned_data.get('phone1')
-    #     if Customer.objects.filter(phone1=phone1).exists():
-    #         raise forms.ValidationError("Müşteri Daha Önce Kaydedildi")
 
-    #     return cleaned_data
 
 class DeliverForm(forms.ModelForm):
 
@@ -119,3 +114,26 @@ class CustomerSearchForm(forms.Form):
                 'data-placeholder': 'Müşteri Telefon No...',
                 },
     ))
+
+
+CHOICES = [
+    (2, 'Havale/EFT'),
+    (1, 'Nakit')
+    ]
+
+class CustomerCreateForm(forms.Form):
+    first_name = forms.CharField(max_length=50, required=False)
+    last_name = forms.CharField(max_length=50, required=False)
+
+    phone1 = forms.CharField(max_length=50, validators=[
+        RegexValidator(regex=r'^\+?1?\d{9,15}$')], label="Telefon Numarası")
+    payment_method = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="")
+    
+    
+
+
+class CustomerAddressCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Address
+        fields = ['district', 'neighborhood', 'address_info']

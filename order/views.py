@@ -30,7 +30,7 @@ from user.forms import LoginForm
 
 from .forms import (AddressForm, BaseModelFormSet, CustomerForm,
                     CustomerSearchForm, DeliverForm, OrderCalendarForm,
-                    OrderForm, OrderItemForm, ProductForm)
+                    OrderForm, OrderItemForm, ProductForm, CustomerCreateForm, CustomerAddressCreateForm)
 from .models import Address, Customer, Neighborhood, Order, OrderItem, Product
 
 
@@ -374,12 +374,14 @@ def add_order(request, id=None):
     return render(request, 'add_order.html', context)
 
 
-@staff_member_required
+
 def load_neighborhoodes(request):
     district_id = request.GET.get('district')
-    
-    neighborhoodes = Neighborhood.objects.filter(
-        district_id=district_id).order_by('name')
+    neighborhoodes =""
+    if district_id.isdigit():    
+        neighborhoodes = Neighborhood.objects.filter(district_id=district_id).order_by('name')
+    else:
+        neighborhoodes = Neighborhood.objects.filter(district__name=district_id).order_by('name')
     return render(request, 'neighborhood_dropdown_list_options.html', {'neighborhoodes': neighborhoodes})
 
 
@@ -413,10 +415,11 @@ def add_district_and_neighborhood(request):
 @staff_member_required
 def add_product(request):
     context = dict()
-    product_form = ProductForm(request.POST or None)
+    product_form = ProductForm(request.POST,request.FILES or None)
     if request.method == "POST":
         if product_form.is_valid():
             product_form.save()
+            
             messages.success(request, "Ürün Başarıyla Eklendi.")
             return redirect('products')
 
@@ -443,7 +446,7 @@ def update_product(request, id):
     product_form = ProductForm(instance=product)
 
     if request.method == "POST":
-        product = ProductForm(request.POST, instance=product)
+        product = ProductForm(request.POST, request.FILES, instance=product)
         if product.is_valid():
             product.save()
             messages.success(request, 'Ürün Başarıyla Güncellendi.')
@@ -824,3 +827,142 @@ def customer_details(request, id):
     customer = get_object_or_404(Customer, id=id)
     context['customer'] = customer
     return render(request, 'customer_details.html', context)
+
+
+def e_index(request):
+    context = dict()
+    if not request.session or not request.session.session_key:
+        request.session.save()
+    context['products'] = Product.objects.all()
+    return render(request, 'ecommerce/product/e-index.html', context)
+    
+def e_product_details(request, id):
+    context = dict()
+    product = Product.objects.get(id=id)
+    context['product'] = product
+    context['related_products'] = Product.objects.filter(category=product.category)
+    context['banner'] = product.name
+    return render(request, 'ecommerce/product/e-product_details.html', context)
+
+def e_about(request):
+    context = dict()
+    context['banner'] = "Hakkımızda"
+    return render(request, 'ecommerce/base/e-about.html', context)
+
+
+def e_contact(request):
+    context = dict()
+    context['banner'] = "İletişim"
+    return render(request, 'ecommerce/base/e-contact.html', context)
+
+def e_products(request):
+    context = dict()
+    context['products'] = Product.objects.all()
+    context['banner'] = "Tüm Ürünler"
+    return render(request, 'ecommerce/product/e-products.html', context)
+
+def e_category_details(request, name):
+    context = dict()
+    category = Category.objects.get(name=name)
+    context['products'] = Product.objects.filter(category=category)
+    context['banner'] = category.name
+    return render(request, 'ecommerce/product/e-category_details.html', context)
+
+def e_cart(request):
+    context = dict()
+    context['order'] = Order.objects.filter(session_key=request.session.session_key, status="waiting").last()
+    return render(request, 'ecommerce/order/e-cart.html', context)
+
+
+def e_checkout(request):
+    context = dict()
+    customer_create_form = CustomerCreateForm(request.POST or None)
+    customer_address_create_form = CustomerAddressCreateForm(request.POST or None)
+    order = Order.objects.filter(session_key=request.session.session_key, status="waiting").last()
+    context['order'] = order
+    context['districtes'] = District.objects.all()
+    context['customer_create_form'] = customer_create_form
+    context['customer_address_create_form'] = customer_address_create_form
+
+
+    if request.method == "POST":
+        if customer_create_form.is_valid() and customer_address_create_form.is_valid():
+            phone1 = customer_create_form.cleaned_data.get('phone1')
+            customer = Customer.objects.filter(phone1=phone1).last()
+
+            if not customer:
+                address = customer_address_create_form.save()
+                first_name = customer_create_form.cleaned_data.get('first_name')
+                last_name = customer_create_form.cleaned_data.get('last_name')
+        
+                customer.address = address
+                customer.save()
+            
+            payment_method = customer_create_form.cleaned_data.get("payment_method")
+
+            order.customer =customer
+            order.status = "buyed"
+            order.payment_method = payment_method
+            order.save()
+            
+
+            messages.success(request, 'Siparişiniz Başarıyla Oluşturuldu')
+            return redirect('e-index')
+
+    return render(request, 'ecommerce/order/e-checkout.html', context)
+   
+   
+def order_item_add(request, product_id):
+    quantity = 1
+    if request.GET.get('quantity'):
+        quantity = float(request.GET.get('quantity'))
+
+    if request.user.is_authenticated or request.session.session_key:
+        
+        customer = Customer.objects.first()
+        order = Order.objects.filter(session_key=request.session.session_key, status="waiting")
+        if order.count() > 0:
+            order = order.last()
+        else:
+            order = Order.objects.create(session_key=request.session.session_key)
+        
+        order.session_key = request.session.session_key
+        product = Product.objects.get(id=product_id)
+
+        for item in order.items.all():
+            if item.product.id == product.id:
+                item.quantity += quantity
+                item.save()
+                order.total_price_update()
+                order.save()
+
+                messages.success(request, 'Ürün Sepetinize Eklendi.')
+                return redirect('e-products')
+        
+        
+        item = OrderItem.objects.create(product=product, price=product.price, quantity=quantity)
+        order.items.add(item)
+        order.total_price_update()
+        order.save()
+        messages.success(request, 'Ürün Sepetinize Eklendi.')
+
+    return redirect('e-products')
+
+def order_item_delete(request, order_id, order_item_id):
+    order_item = OrderItem.objects.get(id=order_item_id)
+    order = Order.objects.get(session_key=request.session.session_key, id=order_id, status="waiting")
+    order.items.remove(order_item)
+    order_item.delete()
+    order.save()
+    messages.success(request, 'Ürün Sepetinizden Çıkartıldı.')
+    return redirect('e-cart')
+
+
+def order_item_update(request, item_id):
+    if request.method == "POST":
+        quantity = request.POST.get("quantity")
+        order_item = OrderItem.objects.get(id=item_id)
+        order_item.quantity = float(quantity)
+        order_item.save()
+    
+    return redirect('e-cart')

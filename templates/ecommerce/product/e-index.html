@@ -1,0 +1,34 @@
+{% extends "ecommerce/base/e-base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block context %}
+
+{% include "ecommerce/base/e-carousel.html" %}
+
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center mb-3 pb-3">
+            <div class="col-md-12 heading-section text-center">
+                <h2 class="mb-4">Ürünlerimiz</h2>
+                <p>Çatalcada bulunan çiftliğimizde ki ürünleri sizlerle buluşturuyoruz.</p>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            {% for item in products %}
+            {% include "ecommerce/product/e-product.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+<a class="whats-app" href="https://wa.me/905307333073/?text=Merhaba Fiyatlarınızı Öğrenebilir miyim?" target="_blank">
+    <i class="fa fa-whatsapp my-float"></i>
+</a>
+{% endblock context %}

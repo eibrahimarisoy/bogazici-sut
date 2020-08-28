@@ -1,0 +1,130 @@
+{% extends "ecommerce/base/e-base.html" %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% block context %}
+
+{% include "ecommerce/base/components/e-banner.html" %}
+
+<section class="ftco-section">
+    {{ customer_create_form.non_field_errors }}
+    <form action="#" class="billing-form" method="post">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-7">
+                    <h3 class="mb-4 billing-heading">Ödeme Detayı</h3>
+                    <div class="row align-items-end">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{customer_create_form.first_name.errors }}
+                                <label for="{{customer_create_form.first_name.id_for_label}}"></label>
+                                {{customer_create_form.first_name | as_crispy_field}}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{customer_create_form.last_name.errors }}
+
+                                <label for="{{customer_create_form.last_name.id_for_label}}"></label>
+                                {{customer_create_form.last_name | as_crispy_field}} </div>
+                        </div>
+                        <div class="w-100"></div>
+
+                        <div class="w-100"></div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label for="{{customer_address_create_form.address_info.id_for_label}}"></label>
+                                {{customer_address_create_form.address_info | as_crispy_field}}
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="district"></label>
+                                <div class="select-wrap">
+                                    {{customer_address_create_form.district| as_crispy_field}}
+                                    <div class="icon"><span class="ion-ios-arrow-down"></span></div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="neighborhood"></label>
+                                <div class="select-wrap">
+                                    <div class="icon"><span class="ion-ios-arrow-down"></span></div>
+                                    {{customer_address_create_form.neighborhood| as_crispy_field}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label for="{{customer_create_form.phone1.id_for_label}}"></label>
+                                {{customer_create_form.phone1 | as_crispy_field}}
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="emailaddress">Email Adresi</label>
+                                <input id="email" name="email" type="text" class="form-control"
+                                    placeholder="(Opsiyonel)">
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                    </div>
+                </div>
+                <div class="col-xl-5">
+                    <div class="row mt-1 pt-3">
+                        <div class="col-md-12 d-flex mb-5">
+                            <div class="cart-detail cart-total p-3 p-md-4">
+                                <h3 class="billing-heading mb-4">Sipariş Toplamı</h3>
+                                <p class="d-flex total-price">
+                                    <span>Toplam Tutar</span>
+                                    <span>{{ order.total_price }} TL</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="cart-detail p-3 p-md-4">
+                                <h3 class="billing-heading mb-4">Ödeme Yöntemi</h3>
+                                {{customer_create_form.payment_method | as_crispy_field}}
+                                <p><button type=submit class="btn btn-primary py-3 px-4">Siparişi Ver</button></p>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- .col-md-8 -->
+            </div>
+        </div>
+    </form>
+</section> <!-- .section -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js">
+</script>
+
+<script>
+    $("#id_district").change(function () {
+        var url = "{% url 'ajax_load_neighborhoodes' %}"; // get the url of the `load_cities` view
+        var e = document.getElementById("id_district")
+        var name = e.options[e.selectedIndex].text;
+        $.ajax({ // initialize an AJAX request
+            url: url, // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+            data: {
+                'district': name // add the country id to the GET parameters
+            },
+            success: function (
+                data) { // `data` is the return of the `load_cities` view function
+                $("#id_neighborhood").html(
+                    data
+                ); // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+</script>
+
+
+
+{% endblock context %}

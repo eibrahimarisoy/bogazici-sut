@@ -1,4 +1,5 @@
-from django.core.validators import MinValueValidator
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
@@ -19,6 +20,13 @@ DAYS = [
     ('Friday', 'Cuma'),
     ('Saturday', 'Cumartesi'),
     ('Monday', 'Pazar'),
+]
+
+
+STATUS = [
+    ('waiting', 'Bekleniyor'),
+    ('buyed', 'Satinalindi'),
+    ('deleted', 'Silindi'),
 ]
 
 
@@ -59,7 +67,7 @@ class Address(models.Model):
         District, on_delete=models.SET_NULL, null=True, verbose_name="İlçe")
     neighborhood = models.ForeignKey(
         Neighborhood, on_delete=models.SET_NULL, null=True, verbose_name="Mahalle")
-    address_info = models.TextField(max_length=255, blank=True, null=True, verbose_name="Sokak-Apartman")
+    address_info = models.CharField(max_length=255, blank=True, null=True, verbose_name="Sokak-Apartman")
 
     def get_full_address(self):
         return self.district.name + "-" + self.neighborhood.name + "-" + self.address_info
@@ -74,7 +82,9 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=50, verbose_name="Adı" ,default="", blank=True)
     last_name = models.CharField(max_length=50, verbose_name="Soyadı", default="", blank=True)
     nick = models.CharField(max_length=9, null=True, blank=True, unique=True)
-    phone1 = models.CharField(max_length=50, verbose_name="Telefon1", unique=True)
+    phone1 = models.CharField(max_length=16, verbose_name="Telefon Numarası", unique=True, validators=[
+        RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Lütfen geçerli bir telefon numarası giriniz.")
+    ])
     phone2 = models.CharField(max_length=50, blank=True, null=True, verbose_name="Telefon2")
     address = models.ForeignKey(Address, on_delete=models.CASCADE, verbose_name="Adres")
 
@@ -97,6 +107,7 @@ class Category(models.Model):
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Ürün Kategorisi")
     name = models.CharField(max_length=70, verbose_name="Ürün Adı")
+    image = models.ImageField(upload_to='product', blank=True, null=True)
     distribution_unit = models.CharField(
         max_length=255,
         choices=DISTRIBUTION_UNITS,  verbose_name="Dağıtım Birimi"
@@ -124,8 +135,12 @@ class OrderItem(models.Model):
     createt_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # TODO add subtotal field to model
     def __str__(self):
         return f"{self.product.name} price: {self.price} TL"
+    
+    class Meta:
+        ordering = ['id']
 
 
 class Order(models.Model):
@@ -133,10 +148,11 @@ class Order(models.Model):
         CASH = 1, 'Nakit'
         EFT = 2, 'EFT'
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı")
-    nick =  models.CharField(max_length=14, null=True, blank=True, unique=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Müşteri Adı", null=True, blank=True)
+    nick = models.CharField(max_length=14, null=True, blank=True, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     items = models.ManyToManyField(OrderItem, verbose_name="Ürünler", related_name='order_item')
-
+    status = models.CharField(max_length=15, choices=STATUS, default="waiting")
     delivery_date = models.DateField(blank=True, null=True, verbose_name="Teslimat Tarihi")
     payment_method = models.PositiveSmallIntegerField(
         choices=PaymentMethodEnum.choices,
@@ -155,6 +171,8 @@ class Order(models.Model):
     is_instagram = models.BooleanField(default=False, verbose_name="İnstagram?")
     instagram_username = models.CharField(max_length=50, null=True, blank=True, help_text="Kullanıcı Adı")
     
+    session_key = models.CharField(max_length=32, blank=True, null=True)
+
     createt_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -168,6 +186,7 @@ class Order(models.Model):
                 if item.is_deleted == False:
                     total_price += item.price * item.quantity
             self.total_price = total_price
+            self.save()
 
     class Meta:
         ordering = ['-delivery_date']

@@ -44,12 +44,14 @@ class CustomerAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
+        'status',
         'customer',
-        'nick',
+        'user',
+        'total_price',
         'delivery_date',
         
     )
-    list_editable = ['nick']
+    
     list_filter = ('delivery_date',)
     
 
