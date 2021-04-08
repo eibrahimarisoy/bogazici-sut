@@ -1,5 +1,5 @@
 asgiref==3.2.7
-Django==3.0.5
+Django==3.0.14
 django-autocomplete-light==3.5.1
 django-crispy-forms==1.9.0
 django-dynamic-formsets==0.0.8
